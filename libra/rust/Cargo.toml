@@ -1,0 +1,34 @@
+[package]
+name = "libralib"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "libra"
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+diem-wallet = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+#diem-wallet = { path = "../../../github/misko9/libra/testsuite/cli/diem-wallet" }
+diem-types = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+#diem-types = { path = "../../../github/misko9/libra/types" }
+ol-keys = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+#ol-keys = { path = "../../../github/misko9/libra/ol/keys" }
+ol-types = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+#ol-types = { path = "../../../github/misko9/libra/ol/types" }
+diem-crypto = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+#diem-crypto = { path = "../../../github/misko9/libra/crypto/crypto" }
+diem-json-rpc-types  = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+#diem-json-rpc-types  = { path = "../../../github/misko9/libra/json-rpc/types" }
+diem-transaction-builder = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+#diem-transaction-builder = { path = "../../../github/misko9/libra/sdk/transaction-builder" }
+anyhow = "1.0.38"
+sha2 = "0.9.3"
+#wasm-bindgen = "0.2.79"
+mirai-annotations = "1.12.0"
+url = "2.2.2"
+serde = { version = "1.0.124", default-features = false }
+serde_json = "1.0.64"
+bcs = "0.1.2"
+hex = "0.4.3"
