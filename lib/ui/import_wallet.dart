@@ -1,3 +1,4 @@
+import 'package:Oollet/utils/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:libra/libra.dart';
@@ -30,7 +31,7 @@ class _ImportWalletState extends State<ImportWallet> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: (_) => EasyDebounce.debounce(
         '_nameController1',
-        Duration(milliseconds: 1000),
+        const Duration(milliseconds: 1000),
             () => setState(() {}),
       ),
       validator: (text) {
@@ -41,7 +42,7 @@ class _ImportWalletState extends State<ImportWallet> {
           return 'Name too long';
         }
         var accounts = AccountProvider.of(context).cachedAccounts;
-        if(accounts.any((element) => element.name == text)) {
+        if(accounts.any((element) => equalsIgnoreCase(element.name, text))) {
           return 'Name taken, please choose another';
         }
         return null;
@@ -98,7 +99,7 @@ class _ImportWalletState extends State<ImportWallet> {
         autovalidateMode: AutovalidateMode.onUserInteraction,
         onChanged: (_) => EasyDebounce.debounce(
           '_mnemController2',
-          Duration(milliseconds: 1000),
+          const Duration(milliseconds: 1000),
               () => setState(() {
                 // Check each word, underline in red if not in set
                 // Check number of words
@@ -182,7 +183,7 @@ class _ImportWalletState extends State<ImportWallet> {
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
+            padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height * 0.7,
@@ -197,7 +198,7 @@ class _ImportWalletState extends State<ImportWallet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Padding(
-                      padding: const EdgeInsets.fromLTRB(4.0, 4.0, 0.0, 2.0),
+                      padding: EdgeInsets.fromLTRB(4.0, 4.0, 0.0, 2.0),
                       child: Text(
                         'Account name:',
                         style: TextStyle(
@@ -208,7 +209,7 @@ class _ImportWalletState extends State<ImportWallet> {
                     ),
                     _buildNameInput(),
                     const Padding(
-                      padding: const EdgeInsets.fromLTRB(4.0, 8.0, 0.0, 2.0),
+                      padding: EdgeInsets.fromLTRB(4.0, 8.0, 0.0, 2.0),
                       child: Text(
                         'Mnemonic to import:',
                         style: TextStyle(

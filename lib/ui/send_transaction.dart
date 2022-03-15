@@ -1,8 +1,8 @@
 import 'dart:ui';
 
-import 'package:Oollet/MyTheme.dart';
 import 'package:Oollet/ui/barcode_scanner.dart';
 import 'package:Oollet/ui/wallet_home.dart';
+import 'package:Oollet/utils/misc.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,8 +21,6 @@ class SendTransaction extends StatefulWidget {
   State<SendTransaction> createState() => _SendTransactionState();
 }
 
-// From, Recipient, Token (GAS), Amount (Show balance), Fee(Low, Average, High), Gas
-// Send, Cancel -> Send button grayed out until fields populated and validated
 class _SendTransactionState extends State<SendTransaction>
     with TickerProviderStateMixin {
   late TextEditingController _recipientController1;
@@ -64,8 +62,8 @@ class _SendTransactionState extends State<SendTransaction>
           print("Parsed Num" + parsedNum.toString());
         }
         var fromAccount = AccountProvider.of(context).selectedAccount;
-        if (fromAccount.addr == text) {
-          return 'This the source account, please choose another';
+        if (equalsIgnoreCase(fromAccount.addr, text)) {
+          return 'This is the source account, please choose another';
         }
         return null;
       },
@@ -120,7 +118,7 @@ class _SendTransactionState extends State<SendTransaction>
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: (_) => EasyDebounce.debounce(
         '_amountController2',
-        Duration(milliseconds: 1000),
+        const Duration(milliseconds: 1000),
         () => setState(() {}),
       ),
       validator: (text) {
@@ -181,7 +179,6 @@ class _SendTransactionState extends State<SendTransaction>
               )
             : null,
       ),
-      //initialValue: "0",
       maxLines: 1,
       keyboardType: TextInputType.number,
       inputFormatters: <TextInputFormatter>[
@@ -273,7 +270,7 @@ class _SendTransactionState extends State<SendTransaction>
                   child: _formRecipient(),
                 ),
                 const Padding(
-                  padding: const EdgeInsets.fromLTRB(6.0, 10.0, 0.0, 2.0),
+                  padding: EdgeInsets.fromLTRB(6.0, 10.0, 0.0, 2.0),
                   child: Text(
                     'Amount (GAS):',
                     style: TextStyle(

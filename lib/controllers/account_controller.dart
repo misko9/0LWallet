@@ -33,7 +33,6 @@ class AccountController {
 
   // This public getter cannot be modified by any other object
   List<Account> get cachedAccounts => List.unmodifiable(_cachedAccountList);
-  //Future<List<Account>> get accounts => services.getAllAccounts();
 
   ReturnStatus addNewAccount(String name, String mnemonic) {
     String addr = Libra().get_address_from_mnem(mnemonic);

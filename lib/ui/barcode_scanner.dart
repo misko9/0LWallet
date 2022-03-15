@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-//import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class BarcodeScannerWithController extends StatefulWidget {
@@ -130,32 +129,6 @@ class _BarcodeScannerWithControllerState
                       iconSize: 32.0,
                       onPressed: () => controller.switchCamera(),
                     ),
-                    /*IconButton(
-                      color: Colors.white,
-                      icon: const Icon(Icons.image),
-                      iconSize: 32.0,
-                      onPressed: () async {
-                        final ImagePicker _picker = ImagePicker();
-                        // Pick an image
-                        final XFile? image = await _picker.pickImage(
-                            source: ImageSource.gallery);
-                        if (image != null) {
-                          if (await controller.analyzeImage(image.path)) {
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(const SnackBar(
-                              content: Text('Barcode found!'),
-                              backgroundColor: Colors.green,
-                            ));
-                          } else {
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(const SnackBar(
-                              content: Text('No barcode found!'),
-                              backgroundColor: Colors.red,
-                            ));
-                          }
-                        }
-                      },
-                    ),*/
                   ],
                 ),
               ),

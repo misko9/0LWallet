@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'controllers/account_controller.dart';
-import 'models/account.dart';
 
 class AccountProvider extends InheritedWidget {
   final _controller = AccountController();

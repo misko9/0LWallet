@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../account_provider.dart';
-import '../models/account.dart';
 import 'create_new_account.dart';
 import 'import_wallet.dart';
 

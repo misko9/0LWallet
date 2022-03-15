@@ -6,10 +6,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import '../account_provider.dart';
-import '../main.dart';
 import '../models/account.dart';
 import 'account_list.dart';
-import 'dart:async';
 
 class WalletHome extends StatefulWidget {
   const WalletHome({Key? key}) : super(key: key);
@@ -112,7 +110,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           children: <Widget>[
             Text(
               addr,
-              style: TextStyle(fontSize: 12),
+              style: const TextStyle(fontSize: 12),
             ),
             Container(
               height: 160,
@@ -125,7 +123,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                 size: 160,
                 gapless: true,
                 embeddedImage:
-                    AssetImage('icons/ol_logo_whitebg_square/1024.png'),
+                    const AssetImage('icons/ol_logo_whitebg_square/1024.png'),
                 embeddedImageStyle: QrEmbeddedImageStyle(
                   size: Size(40, 40),
                 ),
@@ -186,7 +184,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           child: SmartRefresher(
             controller: _refreshController,
             enablePullUp: false,
-            header: WaterDropHeader(),
+            header: const WaterDropHeader(),
             onRefresh: () async {
               _getTowerHeight();
               await _getBalance();
@@ -202,12 +200,12 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                     padding:
                         const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
                     child: VisibilityDetector(
-                      key: Key('my-widget-key'),
+                      key: const Key('my-widget-key'),
                       onVisibilityChanged: (visibilityInfo) {
                         var visiblePercentage =
                             visibilityInfo.visibleFraction * 100;
                         debugPrint(
-                            'Widget ${visibilityInfo.key} is ${visiblePercentage}% visible');
+                            'Widget ${visibilityInfo.key} is $visiblePercentage% visible');
                         if(visiblePercentage > 80) {
                           _refreshScreen();
                         }
