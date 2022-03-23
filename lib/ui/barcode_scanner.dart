@@ -68,6 +68,28 @@ class _BarcodeScannerWithControllerState
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     IconButton(
+                        color: Colors.white,
+                        icon: const Icon(Icons.arrow_back),
+                        iconSize: 32.0,
+                        onPressed: () => Navigator.pop(context, ""),
+                    ),
+                    Center(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width - 200,
+                        height: 50,
+                        child: FittedBox(
+                          child: Text(
+                            barcode ?? 'Scan an address',
+                            overflow: TextOverflow.fade,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline3!
+                                .copyWith(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
                       color: Colors.white,
                       icon: ValueListenableBuilder(
                         valueListenable: controller.torchState,
@@ -84,34 +106,6 @@ class _BarcodeScannerWithControllerState
                       ),
                       iconSize: 32.0,
                       onPressed: () => controller.toggleTorch(),
-                    ),
-                    IconButton(
-                        color: Colors.white,
-                        icon: isStarted
-                            ? const Icon(Icons.stop)
-                            : const Icon(Icons.play_arrow),
-                        iconSize: 32.0,
-                        onPressed: () => setState(() {
-                          isStarted
-                              ? controller.stop()
-                              : controller.start();
-                          isStarted = !isStarted;
-                        })),
-                    Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width - 200,
-                        height: 50,
-                        child: FittedBox(
-                          child: Text(
-                            barcode ?? 'Scan an address',
-                            overflow: TextOverflow.fade,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline3!
-                                .copyWith(color: Colors.white),
-                          ),
-                        ),
-                      ),
                     ),
                     IconButton(
                       color: Colors.white,

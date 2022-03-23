@@ -18,7 +18,7 @@ Some other items on roadmap:
 - And more...
 
 ## Getting Started
-Install all dependencies, build the rust libraries using "make all" from /0LWallet/lib/rust/, 
+Install all dependencies, build the rust libraries using "make all" from /0LWallet/libra/rust/, 
 and build for your platform.
 
 ## Dependencies
@@ -30,7 +30,7 @@ and build for your platform.
 - Flutter SDK: https://docs.flutter.dev/get-started/install
 - Dart SDK
 - Rustup: https://rustup.rs/
-- 0lWallet/libra/rust:
+- 0LWallet/libra/rust:
   -   make init
   -   make all
 - 0lwallet/ios:
