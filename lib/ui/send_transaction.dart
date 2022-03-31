@@ -27,6 +27,7 @@ class _SendTransactionState extends State<SendTransaction>
   late TextEditingController _amountController2;
   final GlobalKey _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
+  var _sendButtonDisabled = false;
 
   @override
   void initState() {
@@ -406,6 +407,7 @@ class _SendTransactionState extends State<SendTransaction>
     Widget okButton = TextButton(
       child: const Text("Send"),
       onPressed: () {
+        _sendButtonDisabled = true;
         _sendTransaction(recipient, amount);
         Navigator.of(context).pop();
       },
@@ -504,7 +506,9 @@ class _SendTransactionState extends State<SendTransaction>
   Widget _sendButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        _validate();
+        if (_sendButtonDisabled != true) {
+          _validate();
+        }
       },
       child: Text(' Send '),
     );
@@ -512,6 +516,7 @@ class _SendTransactionState extends State<SendTransaction>
 
   _sendButtonDialogTemp(BuildContext context, String status) {
     ScaffoldMessenger.of(context).clearSnackBars();
+    _sendButtonDisabled = false;
     // set up the button
     Widget okButton = TextButton(
       child: const Text("OK"),
