@@ -391,8 +391,56 @@ class _SendTransactionState extends State<SendTransaction>
       // Validation passes
       var recipient = _recipientController1.value.text;
       var amount = int.tryParse(_amountController2.value.text) ?? 0;
-      _sendTransaction(recipient, amount);
+      _confirmSendDialog(recipient, amount);
     }
+  }
+
+  _confirmSendDialog(String recipient, int amount) {
+    // set up the button
+    Widget cancelButton = TextButton(
+      child: const Text("Cancel"),
+      onPressed: () => Navigator.of(context).pop(),
+    );
+
+    // set up the button
+    Widget okButton = TextButton(
+      child: const Text("Send"),
+      onPressed: () {
+        _sendTransaction(recipient, amount);
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      scrollable: true,
+      title: const Text("Confirm transaction"),
+      content: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text('Recipient:',
+              style: TextStyle(fontSize: 14),
+            ),
+            Text(recipient,
+              style: const TextStyle(fontSize: 12),
+            ),
+            Text(''),
+            Text('Amount: ' + amount.toString() + " GAS"),
+          ],
+      ),
+      actions: [
+        cancelButton,
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
   _sendTransaction(String destAddr, int coins) async {

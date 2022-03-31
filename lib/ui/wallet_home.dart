@@ -107,6 +107,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       content: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Text(
               addr,

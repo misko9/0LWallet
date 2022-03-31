@@ -26,7 +26,7 @@ class MyTheme with ChangeNotifier {
       onError: Colors.red,
       onPrimary: Colors.yellow, // app bar text, actions
       onSecondary: Colors.orange,
-      onSurface: Colors.blueAccent,
+      onSurface: Colors.blueGrey,
       brightness: Brightness.light,
     );
     return ThemeData(
