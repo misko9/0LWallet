@@ -132,7 +132,7 @@ class _ImportWalletState extends State<ImportWallet> {
         controller: _mnemController2,
         obscureText: false,
         decoration: InputDecoration(
-          hintText: 'mnenomic',
+          hintText: 'mnemonic',
           enabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(
               color: Color(0x00000000),
