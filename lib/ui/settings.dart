@@ -15,40 +15,53 @@ class AppSettings extends StatefulWidget {
 class _AppSettingsState extends State<AppSettings> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: SettingsScreen(
-        title: 'Application Settings',
-        children: [
-          SwitchSettingsTile(
-            settingKey: AppSettings.keyTestnetSwitch,
-            title: 'TestNet (Rex)',
-            enabledLabel: 'Enabled',
-            disabledLabel: 'Disabled',
-            //leading: const Icon(Icons.alt_route),
-            onChange: (value) {
-              debugPrint('Testnet enabled: $value');
-              LibraRpc.testnetEnabled = value;
-            },
+    return Stack(
+      children: [
+        Container(
+          alignment: Alignment.center,
+          child: const Hero(
+            tag: 'appsettings',
+            child: Icon(
+              Icons.settings_outlined,
+              color: Colors.grey,
+              size: 64,
+            ),
           ),
-          TextInputSettingsTile(
-            title: 'Override Peers',
-            settingKey: AppSettings.keyOverridePeers,
-            initialValue: '',
-            autoValidateMode: AutovalidateMode.disabled,
-            validator: (String? url) {
-              if (url == null || url.isEmpty) {
-                LibraRpc.overridePeers = '';
+        ),
+        SettingsScreen(
+          title: 'Application Settings',
+          children: [
+            SwitchSettingsTile(
+              settingKey: AppSettings.keyTestnetSwitch,
+              title: 'TestNet (Rex)',
+              enabledLabel: 'Enabled',
+              disabledLabel: 'Disabled',
+              //leading: const Icon(Icons.alt_route),
+              onChange: (value) {
+                debugPrint('Testnet enabled: $value');
+                LibraRpc.testnetEnabled = value;
+              },
+            ),
+            TextInputSettingsTile(
+              title: 'Override Peers',
+              settingKey: AppSettings.keyOverridePeers,
+              initialValue: '',
+              autoValidateMode: AutovalidateMode.disabled,
+              validator: (String? url) {
+                if (url == null || url.isEmpty) {
+                  LibraRpc.overridePeers = '';
+                  return null;
+                }
+                if (!(Uri.tryParse(url)?.isAbsolute ?? false)) {
+                  return 'Invalid url (e.g. http://1.2.3.4:8080)';
+                }
+                LibraRpc.overridePeers = url;
                 return null;
-              }
-              if (!(Uri.tryParse(url)?.isAbsolute ?? false)) {
-                return 'Invalid url (e.g. http://1.2.3.4:8080)';
-              }
-              LibraRpc.overridePeers = url;
-              return null;
-            },
-          ),
-        ],
-      ),
+              },
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

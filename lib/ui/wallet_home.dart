@@ -52,6 +52,19 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         selectedAccount.balance = balance;
         AccountProvider.of(context).saveAccount(selectedAccount);
       });
+    } else if (balance == -1.0) { // Failure to connect to a node
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 5),
+            content:
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const <Widget>[
+                Text("Cannot connect to node(s)",)
+              ],
+            ),
+          )
+      );
     }
   }
 
@@ -171,10 +184,12 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         ],
         automaticallyImplyLeading: false,
         leading: IconButton(
-          icon: const Icon(
-            Icons.settings_outlined,
-            color: Colors.black,
-            size: 24,
+          icon: const Hero( tag: 'appsettings',
+            child: Icon(
+              Icons.settings_outlined,
+              color: Colors.black,
+              size: 24,
+            ),
           ),
           onPressed: () => Navigator.push(
             context,
