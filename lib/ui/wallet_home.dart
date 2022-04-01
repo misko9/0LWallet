@@ -1,4 +1,5 @@
 import 'package:Oollet/ui/send_transaction.dart';
+import 'package:Oollet/ui/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:libra/libra.dart';
 import 'package:libra/libra_rpc.dart';
@@ -169,10 +170,16 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           ),
         ],
         automaticallyImplyLeading: false,
-        leading: const Icon(
-          Icons.settings_outlined,
-          color: Colors.black,
-          size: 24,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.settings_outlined,
+            color: Colors.black,
+            size: 24,
+          ),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AppSettings()),
+          ),
         ),
         centerTitle: true,
         elevation: 4,
@@ -337,21 +344,4 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       ),
     );
   }
-}
-
-Widget startDrawer(BuildContext context) {
-  return Drawer(
-    child: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          const Text('This is the Drawer1'),
-          ElevatedButton(
-            onPressed: Navigator.of(context).pop,
-            child: const Text('Close Drawer1'),
-          ),
-        ],
-      ),
-    ),
-  );
 }

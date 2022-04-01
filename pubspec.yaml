@@ -46,6 +46,9 @@ dependencies:
   visibility_detector: ^0.2.2
   mobile_scanner: ^1.0.0
   shared_preferences: ^2.0.13
+  hive: ^2.1.0
+  flutter_settings_screens: ^0.3.2-null-safety
+  path_provider: ^2.0.9
 
 dev_dependencies:
   flutter_test:

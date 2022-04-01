@@ -16,6 +16,8 @@ enum SubmitStatus {
 
 class LibraRpc {
   static const SCALING_FACTOR = 1000000; // 1_000_000
+  static bool testnetEnabled = false;
+  static String overridePeers = '';
 
   static getAccountBalance(String address) async {
     var response = await _getAccountRpc(address);
@@ -197,35 +199,72 @@ class LibraRpc {
 
   // Update to rotate playlist
   static _getRequest() async {
-    final urls = [
-      '35.184.98.21',
+    final mainnetIps = [
+      //'35.184.98.21',
       '135.181.118.28',
-      '165.232.136.149',
+      //'165.232.136.149',
       '176.57.189.120',
-      '138.197.152.1',
+      //'138.197.152.1',
       '0l.fullnode.gnazar.io',
     ];
 
-    // alice 148.251.89.142
-    // bob 137.184.191.201
-    // carol 91.229.245.110
+    final testnetIps = [
+      '148.251.89.142', //alice
+      '137.184.191.201', //bob
+      '91.229.245.110', //carol
+    ];
 
-    // generates a new random index
-    final _random = Random().nextInt(urls.length);
-    for(int i=0; i<urls.length; i++) {
+    final urls = testnetEnabled ? testnetIps : mainnetIps;
+
+    if (overridePeers.isEmpty) {
+      // generates a new random index
+      final _random = Random().nextInt(urls.length);
+      for (int i = 0; i < urls.length; i++) {
+        var client = HttpClient();
+        var index = (i + _random) % urls.length;
+        try {
+          var request = await client.post(urls[index], 8080, '');
+          debugPrint("No SocketException with " + urls[index]);
+          return [client, request];
+        } on SocketException catch (_) {
+          client.close();
+          debugPrint("SocketException with " + urls[index]);
+          continue;
+        }
+      }
+    } else {
       var client = HttpClient();
-      var index = (i+_random)%urls.length;
-      try {
-        var request = await client.post(urls[index], 8080, '');
-        debugPrint("No SocketException with "+urls[index]);
-        return [client, request];
-      } on SocketException catch (_) {
-        client.close();
-        debugPrint("SocketException with "+urls[index]);
-        continue;
+      var uri = Uri.tryParse(overridePeers);
+      if (uri != null) {
+        try {
+          var request = await client.post(uri.host, uri.port, '');
+          debugPrint("No SocketException with " + overridePeers);
+          return [client, request];
+        } on SocketException catch (_) {
+          client.close();
+          debugPrint("SocketException with " + overridePeers);
+        }
       }
     }
     return null;
+  }
+
+  static isUrlReachable(String url) async {
+    var client = HttpClient();
+    var uri = Uri.tryParse(url);
+    if (uri == null) {
+      return false;
+    }
+    try {
+      await client.post(uri.host, uri.port, '');
+    } on SocketException catch (_) {
+      client.close();
+      debugPrint("SocketException with "+url);
+      return false;
+    }
+    debugPrint("No SocketException with "+url);
+    client.close();
+    return true;
   }
 
 /*  -32000	Default server error
