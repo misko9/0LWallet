@@ -1,3 +1,4 @@
+import 'package:Oollet/ui/app_entry.dart';
 import 'package:flutter/material.dart';
 
 import '../account_provider.dart';
@@ -91,7 +92,9 @@ Widget _buildAccountList(BuildContext context) {
             },
             onDismissed: (direction) async {
               AccountProvider.of(context).deleteAccount(accountList[index]);
-              accountList = AccountProvider.of(context).cachedAccounts;
+              if(AccountProvider.of(context).cachedAccounts.isEmpty) {
+                Navigator.of(context).pushNamedAndRemoveUntil(AccountList.route, ModalRoute.withName(AppEntry.route));
+              }
             });
       },
     ),

@@ -54,5 +54,8 @@ class AccountController {
   void deleteAccount(Account account) {
     _cachedAccountList.removeWhere((element) => account.addr == element.addr);
     services.delete(account);
+    if (_cachedAccountList.isNotEmpty) {
+      _selectedAccount = _cachedAccountList.first;
+    }
   }
 }
