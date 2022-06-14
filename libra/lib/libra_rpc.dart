@@ -200,12 +200,17 @@ class LibraRpc {
   // Update to rotate playlist
   static _getRequest() async {
     final mainnetIps = [
-      //'35.184.98.21',
-      '135.181.118.28',
-      //'165.232.136.149',
-      '176.57.189.120',
-      //'138.197.152.1',
-      '0l.fullnode.gnazar.io',
+      '63.229.234.76', // gnudrew 6
+      '104.154.120.174', // OD 8
+      '65.108.195.43', // svanakin 30
+      '135.181.118.28', // daniyal 22
+      '154.12.239.62', // mb 10
+      '35.184.98.21', // OD 7
+      '147.182.247.247', // thenateway 9
+      '63.229.234.77', // gnudrew 7
+      '65.108.143.43', // svanakin 27
+      'fullnode.letsmove.fun', // IdleZone 19
+      //'ol.misko.io', // misko
     ];
 
     final testnetIps = [

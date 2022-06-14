@@ -45,7 +45,8 @@ android {
         }
     }
 
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 32
+    //compileSdkVersion flutter.compileSdkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -66,6 +67,7 @@ android {
         applicationId "io.misko.olwallet"
         minSdkVersion 24
         //minSdkVersion flutter.minSdkVersion
+        //targetSdkVersion 32
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

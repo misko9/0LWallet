@@ -20,8 +20,8 @@ Future<void> initSettings() async {
   await Settings.init(
     cacheProvider: HiveCache(),
   );
-  LibraRpc.testnetEnabled = Settings.getValue<bool>(AppSettings.keyTestnetSwitch, false);
-  LibraRpc.overridePeers = Settings.getValue<String>(AppSettings.keyOverridePeers, '');
+  LibraRpc.testnetEnabled = Settings.getValue<bool>(AppSettings.keyTestnetSwitch) ?? false;
+  LibraRpc.overridePeers = Settings.getValue<String>(AppSettings.keyOverridePeers) ?? '';
 }
 
 class MyApp extends StatelessWidget {
