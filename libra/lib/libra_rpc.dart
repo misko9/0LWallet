@@ -1,95 +1,44 @@
 import 'dart:io';
 import 'dart:convert';
-import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
-
+import 'libra_rpc_base.dart';
 import 'models/rpc_get_account.dart';
 import 'models/rpc_get_tower_state_view.dart';
 
 enum SubmitStatus {
   okay,
   errorNot200,
-
 }
 
 class LibraRpc {
-  static const SCALING_FACTOR = 1000000; // 1_000_000
-  static bool testnetEnabled = false;
-  static String overridePeers = '';
-
-  static getAccountBalance(String address) async {
-    var response = await _getAccountRpc(address);
-    double balance = -1.0;
-    if (response == null) {
-      return balance;
-    }
-    // turn the streamed response back to a string so that it can be parsed as JSON
-    final responseBody = await response.transform(utf8.decoder).join();
-    debugPrint("getAccountBalance" + responseBody);
-
-    if(response.statusCode==200){
-      var account = RpcGetAccount.fromJson(jsonDecode(responseBody)).result;
-      if (account != null && account.balances != null && account.balances.isNotEmpty) {
-        balance = account.balances.firstWhere((element) => element.currency == "GAS")
-            .amount.toDouble()/SCALING_FACTOR;
-      }
-    }
-    return balance;
-  }
-
-  static getAccountSeqNum(String address) async {
-    var response = await _getAccountRpc(address);
-    int sequenceNum = -1;
-    if (response == null) {
-      return sequenceNum;
-    }
-    // turn the streamed response back to a string so that it can be parsed as JSON
-    final responseBody = await response.transform(utf8.decoder).join();
-    debugPrint("getAccountSeqNum" + responseBody);
-
-    if(response.statusCode==200){
-      var account = RpcGetAccount.fromJson(jsonDecode(responseBody)).result;
-      if (account != null && account.sequenceNumber >= 0) {
-        sequenceNum = account.sequenceNumber;
-      }
-    }
-    return sequenceNum;
-  }
-
-  static getTowerHeight(String address) async {
-    var response = await _getTowerStateViewRpc(address);
-    var tower_height = -1;
-    if (response == null) {
-      return tower_height;
-    }
-
-    // turn the streamed response back to a string so that it can be parsed as JSON
-    final responseBody = await response.transform(utf8.decoder).join();
-    debugPrint("getTowerHeight" + responseBody);
-
-    if(response.statusCode==200) {
-      var result = rpcGetTowerStateViewFromJson(responseBody).result;
-      if (result != null && result.verifiedTowerHeight != null) {
-        tower_height = result.verifiedTowerHeight!.toInt();
-      }
-    }
-    return tower_height;
-  }
-
 // --------- Available RPC methods ----------
-
-  static _getAccountRpc(String address) async {
-    return await _generateRpc("get_account", [address,]);
+  static getAccountRpc(String address) async {
+    var response = await LibraRpcBase.generateRpc("get_account", [address,]);
+    // turn the streamed response back to a string so that it can be parsed as JSON
+    final responseBody = await response.transform(utf8.decoder).join();
+    debugPrint("getAccountRpc" + responseBody);
+    RpcGetAccount? account;
+    if(response.statusCode==200){
+      account = RpcGetAccount.fromJson(jsonDecode(responseBody));
+    }
+    return account;
   }
 
-  static _getTowerStateViewRpc(String address) async {
-    return await _generateRpc("get_tower_state_view", [address,]);
+  static getTowerStateViewRpc(String address) async {
+    var response = await LibraRpcBase.generateRpc("get_tower_state_view", [address,]);
+    // turn the streamed response back to a string so that it can be parsed as JSON
+    final responseBody = await response.transform(utf8.decoder).join();
+    debugPrint("getTowerStateViewRpc" + responseBody);
+    RpcGetTowerStateView? towerStateView;
+    if(response.statusCode==200) {
+      towerStateView = rpcGetTowerStateViewFromJson(responseBody);
+    }
+    return towerStateView;
   }
 
   static getAccountTransaction(String address, int seqNum) async {
-    var response = await _generateRpc(
+    var response = await LibraRpcBase.generateRpc(
         "get_account_transaction",
         [address, seqNum, true]
     );
@@ -99,7 +48,7 @@ class LibraRpc {
 
     // turn the streamed response back to a string so that it can be parsed as JSON
     final responseBody = await response.transform(utf8.decoder).join();
-    debugPrint(responseBody);
+    debugPrint("getAccountTransactions $responseBody");
 
     int status = response.statusCode;
     if(status==200){
@@ -123,7 +72,7 @@ class LibraRpc {
   }
 
   static submitRpc(String signedTx) async {
-    var response = await _generateRpc("submit", [signedTx,]);
+    var response = await LibraRpcBase.generateRpc("submit", [signedTx,]);
     if (response == null) {
       return -99999;
     }
@@ -131,7 +80,7 @@ class LibraRpc {
     // turn the streamed response back to a string so that it can be parsed as JSON
     final responseBody = await response.transform(utf8.decoder).join();
     debugPrint(responseBody);
-    
+
     int status = response.statusCode;
     if(status==200){
       debugPrint("Submit status code == 200");
@@ -143,133 +92,6 @@ class LibraRpc {
       debugPrint("Submit error");
     }
     return status;
-  }
-
-// --------- Baseline RPC --------------
-
-  // Baseline RPC, use this for each request
-  static _generateRpc(String method, List<Object> params) async {
-    // encode the post body as JSON and then UTF8 bytes
-    var jsonStr = json.encode({
-      "jsonrpc":"2.0",
-      "method":method,
-      "params":params,
-      "id":1,
-    });
-    var dataBytes = utf8.encode(jsonStr);
-    debugPrint("RPC json req: "+jsonStr);
-    debugPrint(dataBytes.toString());
-
-    // use the low level HttpClient to get control of the header case
-    final clientList = await _getRequest();
-    if (clientList == null) {
-      return null;
-    }
-    var client = clientList[0];
-    var request = clientList[1];
-
-    debugPrint("after client.post");
-    // manually add the content length header to preserve its case
-    request.headers.add(
-      'Content-Type', // note the upper case string - try it with lower case (spoiler it fails)
-      "application/json",
-      preserveHeaderCase: true,
-    );
-    request.headers.add(
-      'Content-Length', // note the upper case string - try it with lower case (spoiler it fails)
-      dataBytes.length.toString(),
-      preserveHeaderCase: true,
-    );
-    // optional - add other headers (e.g. Auth) here
-    // request.headers.add(/*some other header*/);
-
-    // send the body bytes
-    request.add(dataBytes);
-    debugPrint("after request.add");
-
-    // 'close' the request to send it, and get a response
-    final response = await request.close();
-    debugPrint("after request.close");
-    debugPrint(response.statusCode.toString());
-
-    // close the client (or re-use it if you prefer)
-    client.close();
-    return response;
-  }
-
-  // Update to rotate playlist
-  static _getRequest() async {
-    final mainnetIps = [
-      '63.229.234.76', // gnudrew 6
-      '104.154.120.174', // OD 8
-      '65.108.195.43', // svanakin 30
-      '135.181.118.28', // daniyal 22
-      '154.12.239.62', // mb 10
-      '35.184.98.21', // OD 7
-      '147.182.247.247', // thenateway 9
-      '63.229.234.77', // gnudrew 7
-      '65.108.143.43', // svanakin 27
-      'fullnode.letsmove.fun', // IdleZone 19
-      //'ol.misko.io', // misko
-    ];
-
-    final testnetIps = [
-      '148.251.89.142', //alice
-      '137.184.191.201', //bob
-      '91.229.245.110', //carol
-    ];
-
-    final urls = testnetEnabled ? testnetIps : mainnetIps;
-
-    if (overridePeers.isEmpty) {
-      // generates a new random index
-      final _random = Random().nextInt(urls.length);
-      for (int i = 0; i < urls.length; i++) {
-        var client = HttpClient();
-        var index = (i + _random) % urls.length;
-        try {
-          var request = await client.post(urls[index], 8080, '');
-          debugPrint("No SocketException with " + urls[index]);
-          return [client, request];
-        } on SocketException catch (_) {
-          client.close();
-          debugPrint("SocketException with " + urls[index]);
-          continue;
-        }
-      }
-    } else {
-      var client = HttpClient();
-      var uri = Uri.tryParse(overridePeers);
-      if (uri != null) {
-        try {
-          var request = await client.post(uri.host, uri.port, '');
-          debugPrint("No SocketException with " + overridePeers);
-          return [client, request];
-        } on SocketException catch (_) {
-          client.close();
-          debugPrint("SocketException with " + overridePeers);
-        }
-      }
-    }
-    return null;
-  }
-
-  static isUrlReachable(String url) async {
-    var client = HttpClient();
-    var uri = Uri.tryParse(url);
-    if (uri == null) {
-      return false;
-    }
-    try {
-      await client.post(uri.host, uri.port, '');
-    } on SocketException catch (_) {
-      client.close();
-      debugPrint("SocketException with "+url);
-      return false;
-    }
-    debugPrint("No SocketException with "+url);
-    client.close();
-    return true;
   }
 
 /*  -32000	Default server error

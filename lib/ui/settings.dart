@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
-import 'package:libra/libra_rpc.dart';
+import 'package:libra/endpoints.dart';
 
 class AppSettings extends StatefulWidget {
   const AppSettings({Key? key}) : super(key: key);
@@ -39,7 +39,7 @@ class _AppSettingsState extends State<AppSettings> {
               //leading: const Icon(Icons.alt_route),
               onChange: (value) {
                 debugPrint('Testnet enabled: $value');
-                LibraRpc.testnetEnabled = value;
+                Endpoints.testnetEnabled = value;
               },
             ),
             TextInputSettingsTile(
@@ -49,13 +49,13 @@ class _AppSettingsState extends State<AppSettings> {
               autoValidateMode: AutovalidateMode.disabled,
               validator: (String? url) {
                 if (url == null || url.isEmpty) {
-                  LibraRpc.overridePeers = '';
+                  Endpoints.overridePeers = '';
                   return null;
                 }
                 if (!(Uri.tryParse(url)?.isAbsolute ?? false)) {
                   return 'Invalid url (e.g. http://1.2.3.4:8080)';
                 }
-                LibraRpc.overridePeers = url;
+                Endpoints.overridePeers = url;
                 return null;
               },
             ),

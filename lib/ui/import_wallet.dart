@@ -1,8 +1,9 @@
+import 'package:Oollet/providers/wallet_provider.dart';
 import 'package:Oollet/utils/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:libra/libra.dart';
-import '../account_provider.dart';
+import 'package:provider/provider.dart';
 import '../utils/word_list.dart';
 import 'wallet_home.dart';
 
@@ -34,6 +35,7 @@ class _ImportWalletState extends State<ImportWallet> {
         const Duration(milliseconds: 1000),
             () => setState(() {}),
       ),
+      maxLength: 40,
       validator: (text) {
         if(text == null || text.isEmpty) {
           return 'Enter an account name';
@@ -41,7 +43,7 @@ class _ImportWalletState extends State<ImportWallet> {
         if(text.length > 50) {
           return 'Name too long';
         }
-        var accounts = AccountProvider.of(context).cachedAccounts;
+        var accounts = Provider.of<WalletProvider>(context, listen: false).accountsList;
         if(accounts.any((element) => equalsIgnoreCase(element.name, text))) {
           return 'Name taken, please choose another';
         }
@@ -123,7 +125,7 @@ class _ImportWalletState extends State<ImportWallet> {
             return 'Checksum is invalid';
           }
           var addr = Libra().get_address_from_mnem(text);
-          var accounts = AccountProvider.of(context).cachedAccounts;
+          var accounts = Provider.of<WalletProvider>(context, listen: false).accountsList;
           if(accounts.any((element) => element.addr == addr)) {
             return 'Account already in wallet';
           }
@@ -246,8 +248,8 @@ class _ImportWalletState extends State<ImportWallet> {
       var name = _nameController1.value.text;
       var mnem = _mnemController2.value.text;
       var addr = Libra().get_address_from_mnem(mnem);
-      AccountProvider.of(context).addNewAccount(name, mnem);
-      AccountProvider.of(context).setNewSelectedAccount(addr);
+      Provider.of<WalletProvider>(context, listen: false).addNewAccount(name, mnem);
+      Provider.of<WalletProvider>(context, listen: false).setNewSelectedAccount(addr);
       Navigator.pushReplacementNamed(context, WalletHome.route);
       // Save new account and open it
     }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../account_provider.dart';
+import 'package:provider/provider.dart';
+import '../providers/wallet_provider.dart';
 import 'account_list.dart';
 import 'wallet_home.dart';
 
@@ -17,7 +18,7 @@ class AppEntryState extends State<AppEntry> {
 
   Future<void> _getAccountList() async {
     //await Future.delayed(const Duration(seconds: 1));
-    var numOfAccounts = await AccountProvider.of(context).getAccountListSizeAndInit();
+    var numOfAccounts = await Provider.of<WalletProvider>(context, listen: false).getAccountListSizeAndInit();
     if(numOfAccounts == 0) {
       Navigator.of(context).pushReplacementNamed(AccountList.route);
       //Navigator.of(context).pushReplacementNamed(NewUser.route);

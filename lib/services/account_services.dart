@@ -1,9 +1,11 @@
+import 'package:Oollet/providers/wallet_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/account.dart';
 
 class AccountServices {
   final _secureRepository = const FlutterSecureStorage();
+  static const String _keySelected = "Selected";
 
   Future<void> createAccount(Account newAccount, String mnem) async {
     var _sharedPref = await SharedPreferences.getInstance();
@@ -42,7 +44,7 @@ class AccountServices {
     List<Account> _accountList = [];
     for (var key in _accountKeys) {
       var account = _sharedPref.getString(key);
-      if (account != null) {
+      if (key != _keySelected && account != null) {
         _accountList.add(Account.deserialize(key, account));
       }
     }
@@ -52,5 +54,16 @@ class AccountServices {
   Future<String> getMnemonic(String addr) async {
     var _mnem = await _secureRepository.read(key: addr);
     return _mnem ?? "";
+  }
+
+  Future<String> getSelectedAccount() async {
+    var sharedPref = await SharedPreferences.getInstance();
+    var readSelectedAccount = sharedPref.getString(_keySelected);
+    return readSelectedAccount ?? WalletProvider.nonAccount.addr;
+  }
+
+  Future setSelectedAccount(String selectedAccount) async {
+    var sharedPref = await SharedPreferences.getInstance();
+    await sharedPref.setString(_keySelected, selectedAccount);
   }
 }

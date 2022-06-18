@@ -49,6 +49,9 @@ dependencies:
   hive: ^2.1.0
   flutter_settings_screens: ^0.3.2-null-safety
   path_provider: ^2.0.9
+  provider: ^6.0.3
+  async: ^2.8.2
+  synchronized: ^3.0.0+2
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:Oollet/providers/wallet_provider.dart';
+import 'package:Oollet/services/rpc_services.dart';
 import 'package:Oollet/ui/barcode_scanner.dart';
 import 'package:Oollet/ui/wallet_home.dart';
 import 'package:Oollet/utils/misc.dart';
@@ -8,8 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:libra/libra.dart';
 import 'package:libra/libra_rpc.dart';
+import 'package:provider/provider.dart';
 
-import '../account_provider.dart';
 import '../models/account.dart';
 
 class SendTransaction extends StatefulWidget {
@@ -36,7 +38,7 @@ class _SendTransactionState extends State<SendTransaction>
     _amountController2 = TextEditingController();
   }
 
-  Widget _formRecipient() {
+  Widget _formRecipient(Account account) {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: (_) => EasyDebounce.debounce(
@@ -62,8 +64,7 @@ class _SendTransactionState extends State<SendTransaction>
           }
           print("Parsed Num" + parsedNum.toString());
         }
-        var fromAccount = AccountProvider.of(context).selectedAccount;
-        if (equalsIgnoreCase(fromAccount.addr, text)) {
+        if (equalsIgnoreCase(account.addr, text)) {
           return 'This is the source account, please choose another';
         }
         return null;
@@ -268,7 +269,7 @@ class _SendTransactionState extends State<SendTransaction>
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(10.0, 4.0, 10.0, 4.0),
-                  child: _formRecipient(),
+                  child: _formRecipient(account),
                 ),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(6.0, 10.0, 0.0, 2.0),
@@ -309,7 +310,7 @@ class _SendTransactionState extends State<SendTransaction>
 
   @override
   Widget build(BuildContext context) {
-    var account = AccountProvider.of(context).selectedAccount;
+    var account = Provider.of<WalletProvider>(context, listen: false).selectedAccount;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       key: _scaffoldKey,
@@ -373,7 +374,7 @@ class _SendTransactionState extends State<SendTransaction>
                     children: [
                       _cancelButton(context),
                       SizedBox(width: 20),
-                      _sendButton(context),
+                      _sendButton(context, account),
                     ],
                   ),
                 ],
@@ -385,18 +386,18 @@ class _SendTransactionState extends State<SendTransaction>
     );
   }
 
-  void _validate() {
+  void _validate(Account account) {
     final form = _formKey.currentState;
     bool? valid = form?.validate();
     if (valid != null && valid == true) {
       // Validation passes
       var recipient = _recipientController1.value.text;
       var amount = int.tryParse(_amountController2.value.text) ?? 0;
-      _confirmSendDialog(recipient, amount);
+      _confirmSendDialog(account, recipient, amount);
     }
   }
 
-  _confirmSendDialog(String recipient, int amount) {
+  _confirmSendDialog(Account account, String recipient, int amount) {
     // set up the button
     Widget cancelButton = TextButton(
       child: const Text("Cancel"),
@@ -408,7 +409,7 @@ class _SendTransactionState extends State<SendTransaction>
       child: const Text("Send"),
       onPressed: () {
         _sendButtonDisabled = true;
-        _sendTransaction(recipient, amount);
+        _sendTransaction(account, recipient, amount);
         Navigator.of(context).pop();
       },
     );
@@ -445,10 +446,11 @@ class _SendTransactionState extends State<SendTransaction>
     );
   }
 
-  _sendTransaction(String destAddr, int coins) async {
-    var selectedAccount = AccountProvider.of(context).selectedAccount;
-    int seqNum = await LibraRpc.getAccountSeqNum(selectedAccount.addr);
-    String mnem = await AccountProvider.of(context).getMnemonic(selectedAccount.addr);
+  _sendTransaction(Account account, String destAddr, int coins) async {
+    WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    await RpcServices.fetchAllAccountInfo(walletProvider, account);
+    int seqNum = account.seqNum;
+    String mnem = await walletProvider.getMnemonic(account.addr);
     var signedTx = Libra()
         .balance_transfer(destAddr, coins, mnem, seqNum);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -466,16 +468,16 @@ class _SendTransactionState extends State<SendTransaction>
     debugPrint(signedTx);
     var submitStatus = await LibraRpc.submitRpc(signedTx);
     debugPrint("Submit status: " + submitStatus.toString());
-    var statusString = "Failure";
+    var statusString = "Timed-out";
     if (submitStatus == -99999) {
       statusString = "Failure - can't connect";
       _sendButtonDialogTemp(context, statusString);
     } else {
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 20; i++) {
         debugPrint("Waiting for tx: " + i.toString());
         await Future.delayed(const Duration(seconds: 1));
         var txStatus = await LibraRpc.getAccountTransaction(
-            selectedAccount.addr, seqNum);
+            account.addr, seqNum);
         if (txStatus == 0) {
           debugPrint("Tx complete!");
           statusString = "Success";
@@ -503,11 +505,11 @@ class _SendTransactionState extends State<SendTransaction>
     );
   }
 
-  Widget _sendButton(BuildContext context) {
+  Widget _sendButton(BuildContext context, Account account) {
     return ElevatedButton(
       onPressed: () {
         if (_sendButtonDisabled != true) {
-          _validate();
+          _validate(account);
         }
       },
       child: Text(' Send '),

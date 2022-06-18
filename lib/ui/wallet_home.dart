@@ -1,13 +1,13 @@
+import 'package:Oollet/providers/wallet_provider.dart';
+import 'package:Oollet/services/rpc_services.dart';
+import 'package:Oollet/ui/qr_code_dialog.dart';
 import 'package:Oollet/ui/send_transaction.dart';
 import 'package:Oollet/ui/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:libra/libra.dart';
-import 'package:libra/libra_rpc.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import '../account_provider.dart';
-import '../models/account.dart';
 import 'account_list.dart';
 
 class WalletHome extends StatefulWidget {
@@ -20,7 +20,6 @@ class WalletHome extends StatefulWidget {
 
 class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  late Account selectedAccount;
   final libra = Libra();
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -40,19 +39,13 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(final AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _refreshScreen();
+      WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
+      RpcServices.fetchAllAccountInfo(walletProvider, walletProvider.selectedAccount);
     }
   }
 
-  _getBalance() async {
-    var selectedAccount = AccountProvider.of(context).selectedAccount;
-    double balance = await LibraRpc.getAccountBalance(selectedAccount.addr);
-    if (balance >= 0) {
-      setState(() {
-        selectedAccount.balance = balance;
-        AccountProvider.of(context).saveAccount(selectedAccount);
-      });
-    } else if (balance == -1.0) { // Failure to connect to a node
+  // TODO detect no nodes...
+/* else if (balance == -1.0) { // Failure to connect to a node
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             duration: const Duration(seconds: 5),
@@ -61,43 +54,8 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.center,
               children: const <Widget>[
                 Text("Cannot connect to node(s)",)
-              ],
-            ),
-          )
-      );
-    }
-  }
-
-  _getTowerHeight() async {
-    var selectedAccount = AccountProvider.of(context).selectedAccount;
-    var towerHeight = await LibraRpc.getTowerHeight(selectedAccount.addr);
-    if (towerHeight >= 0) {
-      setState(() {
-        selectedAccount.towerHeight = towerHeight;
-        AccountProvider.of(context).saveAccount(selectedAccount);
-      });
-    }
-  }
-
-  _refreshScreen() {
-    debugPrint("_refreshScreen()");
-    _getBalance();
-    _getTowerHeight();
-  }
-
-  _navigateAndGetAccount(BuildContext context) async {
-    String addr = "";
-    addr = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AccountList()),
-    );
-    setState(() {
-      if(addr != null && addr != "") {
-        AccountProvider.of(context).setNewSelectedAccount(addr);
-      }
-    });
-  }
-
+              ],),));}}
+*/
   _navigateAndSendTx(BuildContext context) {
     Navigator.push(
       context,
@@ -105,66 +63,9 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     );
   }
 
-  _displayQrCode(BuildContext context, String addr) {
-    // set up the button
-    Widget okButton = TextButton(
-      child: const Text("OK"),
-      onPressed: () {
-        Navigator.of(context).pop();
-        _refreshScreen();
-      },
-    );
-
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: const Text("Scan QR code"),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              addr,
-              style: const TextStyle(fontSize: 12),
-            ),
-            Container(
-              height: 160,
-              width: 160,
-              constraints: const BoxConstraints(maxWidth: 160, maxHeight: 160),
-              child: QrImage(
-                data: addr,
-                version: QrVersions.auto,
-                errorCorrectionLevel: QrErrorCorrectLevel.H,
-                size: 160,
-                gapless: true,
-                embeddedImage:
-                    const AssetImage('icons/ol_logo_whitebg_square/1024.png'),
-                embeddedImageStyle: QrEmbeddedImageStyle(
-                  size: Size(40, 40),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        okButton,
-      ],
-    );
-
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    selectedAccount = AccountProvider.of(context).selectedAccount;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -178,13 +79,17 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               color: Colors.white,
             ),
             onPressed: () {
-              _navigateAndGetAccount(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AccountList()),
+              );
             },
           ),
         ],
         automaticallyImplyLeading: false,
         leading: IconButton(
-          icon: const Hero( tag: 'appsettings',
+          icon: const Hero(
+            tag: 'appsettings',
             child: Icon(
               Icons.settings_outlined,
               color: Colors.black,
@@ -209,8 +114,8 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
             enablePullUp: false,
             header: const WaterDropHeader(),
             onRefresh: () async {
-              _getTowerHeight();
-              await _getBalance();
+              WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
+              await RpcServices.fetchAllAccountInfo(walletProvider, walletProvider.selectedAccount);
               _refreshController.refreshCompleted();
             },
             child: Column(
@@ -229,8 +134,9 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                             visibilityInfo.visibleFraction * 100;
                         debugPrint(
                             'Widget ${visibilityInfo.key} is $visiblePercentage% visible');
-                        if(visiblePercentage > 80) {
-                          _refreshScreen();
+                        if (visiblePercentage > 80) {
+                          WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
+                          RpcServices.fetchAllAccountInfo(walletProvider, walletProvider.selectedAccount);
                         }
                       },
                       child: Card(
@@ -246,12 +152,18 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                             Padding(
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   20, 20, 20, 0),
-                              child: Text(selectedAccount.name),
+                              child: Consumer<WalletProvider>(
+                                  builder: (context, wallet, child) {
+                                return Text(wallet.selectedAccount.name);
+                              }),
                             ),
                             Padding(
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   0, 5, 5, 5),
-                              child: Text(selectedAccount.addr),
+                              child: Consumer<WalletProvider>(
+                                  builder: (context, wallet, child) {
+                                return Text(wallet.selectedAccount.addr);
+                              }),
                             ),
                             const Divider(
                               height: 10,
@@ -266,10 +178,13 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                 const Text(
                                   'Balance:',
                                 ),
-                                Text(
-                                  selectedAccount.balance.toStringAsFixed(2),
-                                  textAlign: TextAlign.center,
-                                ),
+                                Consumer<WalletProvider>(
+                                    builder: (context, wallet, child) {
+                                  return Text(
+                                    wallet.selectedAccount.balance.toStringAsFixed(2),
+                                    textAlign: TextAlign.center,
+                                  );
+                                }),
                               ],
                             ),
                             const Divider(
@@ -297,10 +212,11 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                     child: Align(
                                       alignment:
                                           const AlignmentDirectional(0, 0),
-                                      child: Text(
-                                        selectedAccount.towerHeight.toString(),
-                                        textAlign: TextAlign.center,
-                                      ),
+                                      child: Consumer<WalletProvider>(
+                                          builder: (context, wallet, child) {
+                                            return Text(wallet.selectedAccount.towerHeight.toString(),
+                                            textAlign: TextAlign.center,);
+                                          }),
                                     ),
                                   ),
                                 ),
@@ -320,9 +236,10 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                 Padding(
                                   padding: const EdgeInsetsDirectional.fromSTEB(
                                       5, 0, 0, 0),
-                                  child: Text(
-                                    selectedAccount.walletType,
-                                  ),
+                                  child: Consumer<WalletProvider>(
+                                      builder: (context, wallet, child) {
+                                        return Text(wallet.selectedAccount.walletType);
+                                      }),
                                 ),
                               ],
                             ),
@@ -336,12 +253,17 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                 children: [
                                   ElevatedButton(
                                     child: const Text('Receive'),
-                                    onPressed: () => _displayQrCode(
-                                        context, selectedAccount.addr),
+                                    onPressed: () => showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return QrCodeDialog(addr: Provider.of<WalletProvider>(context, listen: false).selectedAccount.addr);
+                                        }
+                                    )
                                   ),
                                   ElevatedButton(
                                     child: const Text(' Send '),
-                                    onPressed: () => _navigateAndSendTx(context),
+                                    onPressed: () =>
+                                        _navigateAndSendTx(context),
                                   ),
                                 ],
                               ),
