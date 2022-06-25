@@ -11,7 +11,7 @@ enum ReturnStatus {
 class WalletProvider extends ChangeNotifier {
   final services = AccountServices();
   List<Account> _accountsListCache = [];
-  static final nonAccount = Account(name: 'Not initialized', addr: 'abcdefgh', towerHeight: 0, walletType: 'normal', balance: 0.0);
+  static final nonAccount = Account(name: 'Not initialized', addr: 'abcdefgh', watchOnly: true);
   int selectedAccountIndex = 0;
   Account _selectedAccount = nonAccount;
 
@@ -28,6 +28,7 @@ class WalletProvider extends ChangeNotifier {
     _accountsListCache = await services.getAllAccounts();
     String selectedAccountFromStorage = await services.getSelectedAccount();
     if(_accountsListCache.isNotEmpty){
+      _accountsListCache.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
       if(selectedAccountFromStorage != nonAccount.addr) {
         _selectedAccount = _accountsListCache
             .firstWhere((element) => element.addr == selectedAccountFromStorage,
@@ -54,15 +55,24 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
-  ReturnStatus addNewAccount(String name, String mnemonic) {
+  ReturnStatus addNewAccountByMnem(String name, String mnemonic) {
     String addr = Libra().get_address_from_mnem(mnemonic);
     if (_accountsListCache.any((element) => element.addr == addr)) {
       return ReturnStatus.duplicate;
     }
-    var newAccount = Account(name: name, addr: addr);
+    var newAccount = Account(name: name, addr: addr, watchOnly: false);
     _accountsListCache.add(newAccount);
+    _accountsListCache.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     services.createAccount(newAccount, mnemonic);
-    // Fetch data
+    notifyListeners();
+    return ReturnStatus.okay;
+  }
+
+  ReturnStatus addNewAccountByAddr(String name, String addr) {
+    var newAccount = Account(name: name, addr: addr, watchOnly: true);
+    _accountsListCache.add(newAccount);
+    _accountsListCache.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    services.createAccount(newAccount, "");
     notifyListeners();
     return ReturnStatus.okay;
   }
@@ -76,16 +86,20 @@ class WalletProvider extends ChangeNotifier {
       _selectedAccount.walletType = account.walletType;
       _selectedAccount.seqNum = account.seqNum;
       _selectedAccount.epochProofs = account.epochProofs;
+      _selectedAccount.watchOnly = account.watchOnly;
     }
 
-    Account accountCache = _accountsListCache.firstWhere((element) => account.addr == element.addr, orElse: () => Account(name: "", addr: ""));
+    Account accountCache = _accountsListCache.firstWhere((element) => account.addr == element.addr, orElse: () => Account(name: "", addr: "", watchOnly: true));
     accountCache.name = account.name;
     accountCache.balance = account.balance;
     accountCache.towerHeight = account.towerHeight;
     accountCache.walletType = account.walletType;
     accountCache.seqNum = account.seqNum;
     accountCache.epochProofs = account.epochProofs;
+    accountCache.lastEpochMined = account.lastEpochMined;
+    accountCache.watchOnly = account.watchOnly;
 
+    _accountsListCache.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     services.saveAccount(account);
     notifyListeners();
   }

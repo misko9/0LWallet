@@ -229,7 +229,7 @@ class _SendTransactionState extends State<SendTransaction>
               Padding(
                 padding: const EdgeInsets.fromLTRB(6.0, 6.0, 6.0, 6.0),
                 child: Text(
-                  "Balance: ${account.balance.toStringAsFixed(2)}",
+                  "Balance: ${doubleFormatUS(account.balance)}",
                   style: const TextStyle(
                     fontSize: 14.0,
                     fontWeight: FontWeight.bold,
@@ -291,7 +291,7 @@ class _SendTransactionState extends State<SendTransaction>
                     Padding(
                       padding: EdgeInsets.fromLTRB(4.0, 8.0, 8.0, 8.0),
                       child: Text(
-                        'Tx fee is .01 GAS',
+                        'Max tx fee is .01 GAS',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14.0,
@@ -325,7 +325,7 @@ class _SendTransactionState extends State<SendTransaction>
             ),
             onPressed: () {
               Clipboard.getData('text/plain').then((value) {
-                _recipientController1.text = value.toString();
+                _recipientController1.text = value?.text ?? "";
                 setState(() {});
               });
               //_navigateAndGetAccount(context);
@@ -448,7 +448,7 @@ class _SendTransactionState extends State<SendTransaction>
 
   _sendTransaction(Account account, String destAddr, int coins) async {
     WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
-    await RpcServices.fetchAllAccountInfo(walletProvider, account);
+    await RpcServices.fetchAccountInfo(walletProvider, account, false);
     int seqNum = account.seqNum;
     String mnem = await walletProvider.getMnemonic(account.addr);
     var signedTx = Libra()
@@ -471,7 +471,7 @@ class _SendTransactionState extends State<SendTransaction>
     var statusString = "Timed-out";
     if (submitStatus == -99999) {
       statusString = "Failure - can't connect";
-      _sendButtonDialogTemp(context, statusString);
+      _sendButtonDialogTemp(context, statusString, account);
     } else {
       for (int i = 0; i < 20; i++) {
         debugPrint("Waiting for tx: " + i.toString());
@@ -492,7 +492,7 @@ class _SendTransactionState extends State<SendTransaction>
           break;
         }
       }
-      _sendButtonDialogTemp(context, statusString);
+      _sendButtonDialogTemp(context, statusString, account);
     }
   }
 
@@ -516,13 +516,15 @@ class _SendTransactionState extends State<SendTransaction>
     );
   }
 
-  _sendButtonDialogTemp(BuildContext context, String status) {
+  _sendButtonDialogTemp(BuildContext context, String status, Account account) {
     ScaffoldMessenger.of(context).clearSnackBars();
     _sendButtonDisabled = false;
     // set up the button
     Widget okButton = TextButton(
       child: const Text("OK"),
       onPressed: () {
+        WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
+        RpcServices.fetchAccountInfo(walletProvider, account, false);
         Navigator.of(context).popUntil(ModalRoute.withName(WalletHome.route));
       },
     );
@@ -539,6 +541,7 @@ class _SendTransactionState extends State<SendTransaction>
     // show the dialog
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return alert;
       },

@@ -18,6 +18,7 @@ final staticMainnetIps = [
   '63.229.234.77', // gnudrew 7
   '65.108.143.43', // svanakin 27
   'fullnode.letsmove.fun', // IdleZone 19
+  '142.132.207.50', // bigbubabeast
   //'ol.misko.io', // misko
 ];
 final testnetNodes = [
@@ -27,7 +28,7 @@ final testnetNodes = [
 ];
 
 class Endpoints {
-  static DateTime lastUpdate = DateTime.utc(1970);
+  static DateTime lastUpdate = DateTime.utc(1969);
   static List<String> goodNodes = [];
   static bool testnetEnabled = false;
   static String overridePeers = '';
@@ -38,7 +39,7 @@ class Endpoints {
 
       // Block all other requests until good enpoints have been updated
       await lock.synchronized(() async {
-        if(timeToUpdate()) await updateEndpoints();
+        if(timeToUpdate() || goodNodes.isEmpty) await updateEndpoints();
       });
       final urls = testnetEnabled ? testnetNodes : goodNodes;
       // generates a new random index
@@ -92,6 +93,9 @@ class Endpoints {
       int count = 0;
       int totalVersion = 0;
       int totalSquaredVersion = 0;
+      int avgVersion = 0;
+      int meanSquaredVersion = 0;
+      int rmsVersion = 0;
       for (var endpoint in endpointList) {
         debugPrint("Endpoint: ${endpoint.url}, Version: ${endpoint.version}, is_avail: ${endpoint.is_avail}");
         if(endpoint.is_avail) {
@@ -99,7 +103,9 @@ class Endpoints {
           totalVersion += endpoint.version;
         }
       }
-      int avgVersion = (totalVersion/count).floor();
+      if(count > 0) {
+        avgVersion = (totalVersion / count).floor();
+      }
       count = 0;
       for (var endpoint in endpointList) {
         // Filter out nodes that aren't available and outliers for the calculation
@@ -108,8 +114,10 @@ class Endpoints {
           totalSquaredVersion += pow(endpoint.version, 2).toInt();
         }
       }
-      int meanSquaredVersion = (totalSquaredVersion / count).floor();
-      int rmsVersion = sqrt(meanSquaredVersion).floor();
+      if(count > 0) {
+        meanSquaredVersion = (totalSquaredVersion / count).floor();
+        rmsVersion = sqrt(meanSquaredVersion).floor();
+      }
       debugPrint("RMS Version: $rmsVersion");
       if(rmsVersion > 0) {
         goodNodes = [];
@@ -118,6 +126,7 @@ class Endpoints {
             goodNodes.add(endpoint.url);
           }
         }
+        debugPrint("Good node count: ${goodNodes.length}");
       }
     });
   }

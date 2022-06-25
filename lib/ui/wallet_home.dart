@@ -3,6 +3,7 @@ import 'package:Oollet/services/rpc_services.dart';
 import 'package:Oollet/ui/qr_code_dialog.dart';
 import 'package:Oollet/ui/send_transaction.dart';
 import 'package:Oollet/ui/settings.dart';
+import 'package:Oollet/utils/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:libra/libra.dart';
 import 'package:provider/provider.dart';
@@ -39,23 +40,29 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(final AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
-      RpcServices.fetchAllAccountInfo(walletProvider, walletProvider.selectedAccount);
+      debugPrint("WalletStateHome app resumed");
+      WalletProvider walletProvider =
+          Provider.of<WalletProvider>(context, listen: false);
+      RpcServices.fetchAccountInfo(
+          walletProvider, walletProvider.selectedAccount, true).then((int result) {
+            // Displays only for app resume, pull-to-refresh, & visibility detector > 80%
+            if(result < 0) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 5),
+                    content:
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const <Widget>[
+                        Text("Cannot connect to node(s)",)
+                      ],
+                    ),
+                  ));
+            }
+      });
     }
   }
 
-  // TODO detect no nodes...
-/* else if (balance == -1.0) { // Failure to connect to a node
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 5),
-            content:
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const <Widget>[
-                Text("Cannot connect to node(s)",)
-              ],),));}}
-*/
   _navigateAndSendTx(BuildContext context) {
     Navigator.push(
       context,
@@ -79,6 +86,9 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               color: Colors.white,
             ),
             onPressed: () {
+              WalletProvider walletProvider =
+                Provider.of<WalletProvider>(context, listen: false);
+              RpcServices.fetchAllAccounts(walletProvider, true);
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const AccountList()),
@@ -88,13 +98,10 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         ],
         automaticallyImplyLeading: false,
         leading: IconButton(
-          icon: const Hero(
-            tag: 'appsettings',
-            child: Icon(
-              Icons.settings_outlined,
-              color: Colors.black,
-              size: 24,
-            ),
+          icon: Icon(
+            Icons.settings_outlined,
+            color: Colors.black,
+            size: 24,
           ),
           onPressed: () => Navigator.push(
             context,
@@ -114,12 +121,27 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
             enablePullUp: false,
             header: const WaterDropHeader(),
             onRefresh: () async {
-              WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
-              await RpcServices.fetchAllAccountInfo(walletProvider, walletProvider.selectedAccount);
+              WalletProvider walletProvider =
+                  Provider.of<WalletProvider>(context, listen: false);
+              int result = await RpcServices.fetchAccountInfo(
+                  walletProvider, walletProvider.selectedAccount, false);
+              // Displays only for app resume, pull-to-refresh, & visibility detector > 80%
+              if(result < 0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 5),
+                    content: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const <Widget>[
+                        Text("Cannot connect to node(s)",)
+                      ],
+                    ),
+                  ));
+              }
               _refreshController.refreshCompleted();
             },
             child: Column(
-              mainAxisSize: MainAxisSize.max,
+              //mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Align(
@@ -135,8 +157,26 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                         debugPrint(
                             'Widget ${visibilityInfo.key} is $visiblePercentage% visible');
                         if (visiblePercentage > 80) {
-                          WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
-                          RpcServices.fetchAllAccountInfo(walletProvider, walletProvider.selectedAccount);
+                          WalletProvider walletProvider =
+                              Provider.of<WalletProvider>(context,
+                                  listen: false);
+                          RpcServices.fetchAccountInfo(
+                              walletProvider, walletProvider.selectedAccount, true).then((int result) {
+                            // Displays only for app resume, pull-to-refresh, & visibility detector > 80%
+                            if(result < 0) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    duration: const Duration(seconds: 5),
+                                    content:
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: const <Widget>[
+                                        Text("Cannot connect to node(s)",)
+                                      ],
+                                    ),
+                                  ));
+                            }
+                          });
                         }
                       },
                       child: Card(
@@ -149,20 +189,46 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                         child: Column(
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  20, 20, 20, 0),
-                              child: Consumer<WalletProvider>(
-                                  builder: (context, wallet, child) {
-                                return Text(wallet.selectedAccount.name);
-                              }),
-                            ),
+                            Consumer<WalletProvider>(
+                                builder: (context, wallet, child) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Stack(children: [
+                                  Row(
+                                      children: [
+                                    wallet.selectedAccount.watchOnly
+                                        ? Icon(
+                                            Icons.remove_red_eye_outlined)
+                                        : Icon(Icons
+                                            .account_balance_wallet_outlined),
+                                  ]),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: MediaQuery.of(context).size.width * 0.70,
+                                        child: Center(
+                                          child: Text(
+                                            wallet.selectedAccount.name,
+                                            style: TextStyle(fontSize: 18.0),
+                                            overflow: TextOverflow.fade,
+                                            maxLines: 1,
+                                            softWrap: false,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ]),
+                              );
+                            }),
                             Padding(
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   0, 5, 5, 5),
                               child: Consumer<WalletProvider>(
                                   builder: (context, wallet, child) {
-                                return Text(wallet.selectedAccount.addr);
+                                return Text(
+                                    wallet.selectedAccount.addr.toLowerCase());
                               }),
                             ),
                             const Divider(
@@ -181,7 +247,8 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                 Consumer<WalletProvider>(
                                     builder: (context, wallet, child) {
                                   return Text(
-                                    wallet.selectedAccount.balance.toStringAsFixed(2),
+                                    doubleFormatUS(
+                                        wallet.selectedAccount.balance),
                                     textAlign: TextAlign.center,
                                   );
                                 }),
@@ -214,15 +281,18 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                           const AlignmentDirectional(0, 0),
                                       child: Consumer<WalletProvider>(
                                           builder: (context, wallet, child) {
-                                            return Text(wallet.selectedAccount.towerHeight.toString(),
-                                            textAlign: TextAlign.center,);
-                                          }),
+                                        return Text(
+                                          intFormatUS(wallet
+                                              .selectedAccount.towerHeight),
+                                          textAlign: TextAlign.center,
+                                        );
+                                      }),
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                            Row(
+                            /*Row(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -238,7 +308,52 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                       5, 0, 0, 0),
                                   child: Consumer<WalletProvider>(
                                       builder: (context, wallet, child) {
-                                        return Text(wallet.selectedAccount.walletType);
+                                    return Text(
+                                        wallet.selectedAccount.walletType);
+                                  }),
+                                ),
+                              ],
+                            ),*/
+                            Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0, 0, 5, 0),
+                                  child: Text(
+                                    'Proofs in Epoch:',
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(
+                                      5, 0, 0, 0),
+                                  child: Consumer<WalletProvider>(
+                                      builder: (context, wallet, child) {
+                                        return Text(
+                                            "${wallet.selectedAccount.epochProofs}");
+                                      }),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0, 0, 5, 0),
+                                  child: Text(
+                                    'Last Epoch Mined:',
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(
+                                      5, 0, 0, 0),
+                                  child: Consumer<WalletProvider>(
+                                      builder: (context, wallet, child) {
+                                        return Text(
+                                            "${wallet.selectedAccount.lastEpochMined}");
                                       }),
                                 ),
                               ],
@@ -252,18 +367,45 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
                                   ElevatedButton(
-                                    child: const Text('Receive'),
-                                    onPressed: () => showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return QrCodeDialog(addr: Provider.of<WalletProvider>(context, listen: false).selectedAccount.addr);
-                                        }
-                                    )
-                                  ),
+                                      child: const Text('Receive'),
+                                      onPressed: () => showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return QrCodeDialog(
+                                                addr:
+                                                    Provider.of<WalletProvider>(
+                                                            context,
+                                                            listen: false)
+                                                        .selectedAccount
+                                                        .addr
+                                                        .toLowerCase());
+                                          })),
                                   ElevatedButton(
                                     child: const Text(' Send '),
-                                    onPressed: () =>
-                                        _navigateAndSendTx(context),
+                                    onPressed: () => Provider.of<
+                                                    WalletProvider>(context,
+                                                listen: false)
+                                            .selectedAccount
+                                            .watchOnly
+                                        ? showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title:
+                                                    Text("Watch-only account"),
+                                                actions: [
+                                                  TextButton(
+                                                    child: const Text("OK"),
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          )
+                                        : _navigateAndSendTx(context),
                                   ),
                                 ],
                               ),

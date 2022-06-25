@@ -1,6 +1,5 @@
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:tweetnacl/tweetnacl.dart';
-import "dart:convert";
 import 'dart:typed_data';
 
 // FreshLibra is a class using pure dart/flutter

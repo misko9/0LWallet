@@ -1,3 +1,4 @@
+import 'package:Oollet/ui/add_watch_only_address.dart';
 import 'package:Oollet/ui/barcode_scanner.dart';
 import 'package:Oollet/ui/settings.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,7 @@ Future<void> initSettings() async {
   await Settings.init(
     cacheProvider: HiveCache(),
   );
-  Endpoints.testnetEnabled = Settings.getValue<bool>(AppSettings.keyTestnetSwitch) ?? false;
+  Endpoints.testnetEnabled = false; //Settings.getValue<bool>(AppSettings.keyTestnetSwitch) ?? false;
   Endpoints.overridePeers = Settings.getValue<String>(AppSettings.keyOverridePeers) ?? '';
 }
 
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
           WalletHome.route: (context) => const WalletHome(),
           CreateNewAccount.route: (context) => CreateNewAccount(),
           ImportWallet.route: (context) => ImportWallet(),
+          AddWatchOnlyAddress.route: (context) => AddWatchOnlyAddress(),
           AccountList.route: (context) => const AccountList(),
           AppSettings.route: (context) => AppSettings(),
           BarcodeScannerWithController.route: (context) => const BarcodeScannerWithController(),

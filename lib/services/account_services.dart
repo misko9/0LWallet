@@ -10,7 +10,9 @@ class AccountServices {
   Future<void> createAccount(Account newAccount, String mnem) async {
     var _sharedPref = await SharedPreferences.getInstance();
     await _sharedPref.setString(newAccount.addr, Account.serialize(newAccount));
-    await _secureRepository.write(key: newAccount.addr, value: mnem);
+    if(newAccount.watchOnly == false) {
+      await _secureRepository.write(key: newAccount.addr, value: mnem);
+    }
   }
 
   Future<void> saveAccount(Account account) async {
@@ -35,7 +37,7 @@ class AccountServices {
     var _readAccount = _sharedPref.getString(addr);
     return _readAccount != null ?
       Account.deserialize(addr, _readAccount) :
-      Account(name: "Invalid", addr: addr);
+      Account(name: "Invalid", addr: addr, watchOnly: true);
   }
 
   Future<List<Account>> getAllAccounts() async {

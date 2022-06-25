@@ -1,22 +1,24 @@
-import 'package:Oollet/providers/wallet_provider.dart';
-import 'package:Oollet/utils/misc.dart';
-import 'package:flutter/material.dart';
 import 'package:easy_debounce/easy_debounce.dart';
-import 'package:libra/libra.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../utils/word_list.dart';
+
+import '../providers/wallet_provider.dart';
+import '../utils/misc.dart';
+import 'barcode_scanner.dart';
 import 'wallet_home.dart';
 
-class ImportWallet extends StatefulWidget {
-  static const route = '/ImportWallet';
+class AddWatchOnlyAddress extends StatefulWidget {
+  const AddWatchOnlyAddress({Key? key}) : super(key: key);
+  static const route = '/AddWatchOnlyAddress';
 
   @override
-  _ImportWalletState createState() => _ImportWalletState();
+  State<AddWatchOnlyAddress> createState() => _AddWatchOnlyAddressState();
 }
 
-class _ImportWalletState extends State<ImportWallet> {
+class _AddWatchOnlyAddressState extends State<AddWatchOnlyAddress> {
   late TextEditingController _nameController1;
-  late TextEditingController _mnemController2;
+  late TextEditingController _addrController2;
   final GlobalKey _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
 
@@ -24,7 +26,7 @@ class _ImportWalletState extends State<ImportWallet> {
   void initState() {
     super.initState();
     _nameController1 = TextEditingController();
-    _mnemController2 = TextEditingController();
+    _addrController2 = TextEditingController();
   }
 
   Widget _buildNameInput() {
@@ -44,7 +46,8 @@ class _ImportWalletState extends State<ImportWallet> {
           return 'Name too long';
         }
         var accounts = Provider.of<WalletProvider>(context, listen: false).accountsList;
-        if(accounts.any((element) => equalsIgnoreCase(element.name, text))) {
+        if(accounts.any((element) => equalsIgnoreCase(element.name, text)) ||
+            equalsIgnoreCase(text, WalletProvider.nonAccount.name)) {
           return 'Name taken, please choose another';
         }
         return null;
@@ -82,59 +85,45 @@ class _ImportWalletState extends State<ImportWallet> {
           child: const Icon(
             Icons.clear,
             color: Color(0xFF757575),
-            size: 22,
+            size: 18,
           ),
         )
-            : null,
+            : SizedBox(height: 18.0,),
       ),
       maxLines: 1,
     );
   }
 
-  Widget _buildMnenomicInput() {
+  Widget _buildAddressInput() {
     return
       TextFormField(
-        keyboardType: TextInputType.visiblePassword,
-        enableIMEPersonalizedLearning: false,
         enableSuggestions: false,
         autocorrect: false,
         autovalidateMode: AutovalidateMode.onUserInteraction,
+        maxLength: 32,
         onChanged: (_) => EasyDebounce.debounce(
-          '_mnemController2',
+          '_addrController2',
           const Duration(milliseconds: 1000),
               () => setState(() {
-                // Check each word, underline in red if not in set
-                // Check number of words
-              }),
+          }),
         ),
         validator: (text) {
           if(text == null || text.isEmpty) {
-            return 'Enter mnemonic';
+            return 'Enter 0L address';
           }
-          var splitted = text.trim().split(' ');
-          if (splitted.length != 24) {
-            return 'List requires 24 words, ${24-splitted.length} more';
+          if(text.length != 32) {
+            return 'Invalid 0L address';
           }
-          if(!(splitted.every((element1) => wordList.any((element2) => element1 == element2)))){
-            return 'At least one word is not valid';
-          }
-          //if(!FreshLibra.validateMnemonic(text.trim())) {
-          //  return "FreshLibra caught invalid checksum";
-          //}
-          if(!Libra().is_mnem_valid(text)) {
-            return 'Checksum is invalid';
-          }
-          var addr = Libra().get_address_from_mnem(text);
           var accounts = Provider.of<WalletProvider>(context, listen: false).accountsList;
-          if(accounts.any((element) => element.addr == addr)) {
+          if(accounts.any((element) => element.addr == text)) {
             return 'Account already in wallet';
           }
           return null;
         },
-        controller: _mnemController2,
+        controller: _addrController2,
         obscureText: false,
         decoration: InputDecoration(
-          hintText: 'mnemonic',
+          labelText: "0L address",
           enabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(
               color: Color(0x00000000),
@@ -156,20 +145,20 @@ class _ImportWalletState extends State<ImportWallet> {
             ),
           ),
           filled: true,
-          suffixIcon: _mnemController2.text.isNotEmpty ? InkWell(
+          suffixIcon: _addrController2.text.isNotEmpty ? InkWell(
             onTap: () => setState(
-                  () => _mnemController2.clear(),
+                  () => _addrController2.clear(),
             ),
             child: const Icon(
               Icons.clear,
               color: Color(0xFF757575),
-              size: 22,
+              size: 18,
             ),
           )
-              : null,
+              : SizedBox(height: 18.0,),
         ),
-        maxLines: 5,
-    );
+        maxLines: 1,
+      );
   }
 
   @override
@@ -178,8 +167,42 @@ class _ImportWalletState extends State<ImportWallet> {
       resizeToAvoidBottomInset: false,
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('Import Account'),
+        title: const Text('Add Watch-Only Account'),
         automaticallyImplyLeading: true,
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.paste,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Clipboard.getData('text/plain').then((value) {
+                _addrController2.text = value?.text ?? "";
+                setState(() {});
+              });
+              //_navigateAndGetAccount(context);
+            },
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.qr_code_scanner,
+              color: Colors.white,
+            ),
+            onPressed: () async {
+              String addr = "";
+              addr = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const BarcodeScannerWithController()),
+              );
+              setState(() {
+                if (addr != null && addr != "") {
+                  _addrController2.text = addr;
+                }
+              });
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: GestureDetector(
@@ -210,25 +233,15 @@ class _ImportWalletState extends State<ImportWallet> {
                       ),
                     ),
                     _buildNameInput(),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(4.0, 8.0, 0.0, 2.0),
-                      child: Text(
-                        'Mnemonic to import:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18.0,
-                        ),
-                      ),
-                    ),
-                    _buildMnenomicInput(),
+                    _buildAddressInput(),
                     Align(
                       alignment: const AlignmentDirectional(1, 0),
                       child: Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
-                        child: ElevatedButton(
-                          onPressed: _validate,
-                          child: const Text('Submit'),
-                        )
+                          padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
+                          child: ElevatedButton(
+                            onPressed: _validate,
+                            child: const Text('Submit'),
+                          )
                       ),
                     ),
                   ],
@@ -246,9 +259,8 @@ class _ImportWalletState extends State<ImportWallet> {
     bool? valid = form?.validate();
     if(valid != null && valid == true) { // Validation passes
       var name = _nameController1.value.text;
-      var mnem = _mnemController2.value.text;
-      var addr = Libra().get_address_from_mnem(mnem).toLowerCase();
-      Provider.of<WalletProvider>(context, listen: false).addNewAccountByMnem(name, mnem);
+      var addr = _addrController2.value.text.toLowerCase();
+      Provider.of<WalletProvider>(context, listen: false).addNewAccountByAddr(name, addr);
       Provider.of<WalletProvider>(context, listen: false).setNewSelectedAccount(addr);
       Navigator.pushReplacementNamed(context, WalletHome.route);
       // Save new account and open it

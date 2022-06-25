@@ -25,7 +25,6 @@ class LibraRpcBase {
     var client = clientList[0];
     var request = clientList[1];
 
-    debugPrint("after client.post");
     // manually add the content length header to preserve its case
     request.headers.add(
       'Content-Type', // note the upper case string - try it with lower case (spoiler it fails)
@@ -42,11 +41,9 @@ class LibraRpcBase {
 
     // send the body bytes
     request.add(dataBytes);
-    debugPrint("after request.add");
 
     // 'close' the request to send it, and get a response
     final response = await request.close();
-    debugPrint("after request.close");
     debugPrint(response.statusCode.toString());
 
     // close the client (or re-use it if you prefer)

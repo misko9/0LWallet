@@ -50,7 +50,7 @@ class QrCodeDialog extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop();
             WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
-            RpcServices.fetchAllAccountInfo(walletProvider, walletProvider.selectedAccount);
+            RpcServices.fetchAccountInfo(walletProvider, walletProvider.selectedAccount, false);
           },
         ),
       ],

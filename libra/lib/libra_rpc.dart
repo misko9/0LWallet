@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -16,10 +15,11 @@ class LibraRpc {
   static getAccountRpc(String address) async {
     var response = await LibraRpcBase.generateRpc("get_account", [address,]);
     // turn the streamed response back to a string so that it can be parsed as JSON
-    final responseBody = await response.transform(utf8.decoder).join();
-    debugPrint("getAccountRpc" + responseBody);
     RpcGetAccount? account;
-    if(response.statusCode==200){
+    //RpcGetAccount account = RpcGetAccount(diemChainId: 0, diemLedgerVersion: 0, diemLedgerTimestampusec: 0, jsonrpc: "", id: 0);
+    if(response != null && response.statusCode==200){
+      final responseBody = await response.transform(utf8.decoder).join();
+      debugPrint("getAccountRpc" + responseBody);
       account = RpcGetAccount.fromJson(jsonDecode(responseBody));
     }
     return account;
@@ -28,10 +28,10 @@ class LibraRpc {
   static getTowerStateViewRpc(String address) async {
     var response = await LibraRpcBase.generateRpc("get_tower_state_view", [address,]);
     // turn the streamed response back to a string so that it can be parsed as JSON
-    final responseBody = await response.transform(utf8.decoder).join();
-    debugPrint("getTowerStateViewRpc" + responseBody);
     RpcGetTowerStateView? towerStateView;
-    if(response.statusCode==200) {
+    if(response != null && response.statusCode==200) {
+      final responseBody = await response.transform(utf8.decoder).join();
+      debugPrint("getTowerStateViewRpc" + responseBody);
       towerStateView = rpcGetTowerStateViewFromJson(responseBody);
     }
     return towerStateView;
