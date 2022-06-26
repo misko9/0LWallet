@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../providers/wallet_provider.dart';
 import '../utils/misc.dart';
 import 'barcode_scanner.dart';
+import 'common/name_input_field.dart';
 import 'wallet_home.dart';
 
 class AddWatchOnlyAddress extends StatefulWidget {
@@ -17,7 +18,7 @@ class AddWatchOnlyAddress extends StatefulWidget {
 }
 
 class _AddWatchOnlyAddressState extends State<AddWatchOnlyAddress> {
-  late TextEditingController _nameController1;
+  late TextEditingController nameController1;
   late TextEditingController _addrController2;
   final GlobalKey _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
@@ -25,11 +26,11 @@ class _AddWatchOnlyAddressState extends State<AddWatchOnlyAddress> {
   @override
   void initState() {
     super.initState();
-    _nameController1 = TextEditingController();
+    nameController1 = TextEditingController();
     _addrController2 = TextEditingController();
   }
 
-  Widget _buildNameInput() {
+  /*Widget _buildNameInput() {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: (_) => EasyDebounce.debounce(
@@ -92,7 +93,7 @@ class _AddWatchOnlyAddressState extends State<AddWatchOnlyAddress> {
       ),
       maxLines: 1,
     );
-  }
+  }*/
 
   Widget _buildAddressInput() {
     return
@@ -115,7 +116,7 @@ class _AddWatchOnlyAddressState extends State<AddWatchOnlyAddress> {
             return 'Invalid 0L address';
           }
           var accounts = Provider.of<WalletProvider>(context, listen: false).accountsList;
-          if(accounts.any((element) => element.addr == text)) {
+          if(accounts.any((element) => element.addr.toLowerCase() == text.toLowerCase())) {
             return 'Account already in wallet';
           }
           return null;
@@ -232,7 +233,7 @@ class _AddWatchOnlyAddressState extends State<AddWatchOnlyAddress> {
                         ),
                       ),
                     ),
-                    _buildNameInput(),
+                    NameInputField(nameController1: nameController1),
                     _buildAddressInput(),
                     Align(
                       alignment: const AlignmentDirectional(1, 0),
@@ -258,7 +259,7 @@ class _AddWatchOnlyAddressState extends State<AddWatchOnlyAddress> {
     final form = _formKey.currentState;
     bool? valid = form?.validate();
     if(valid != null && valid == true) { // Validation passes
-      var name = _nameController1.value.text;
+      var name = nameController1.value.text;
       var addr = _addrController2.value.text.toLowerCase();
       Provider.of<WalletProvider>(context, listen: false).addNewAccountByAddr(name, addr);
       Provider.of<WalletProvider>(context, listen: false).setNewSelectedAccount(addr);

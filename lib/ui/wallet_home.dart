@@ -237,8 +237,8 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   IconButton(
-                                    constraints: BoxConstraints(),
-                                    icon: Icon(
+                                    constraints: const BoxConstraints(),
+                                    icon: const Icon(
                                       Icons.link,
                                       color: Colors.blue,
                                       size: 18,
@@ -257,7 +257,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                   Text(accountAddr),
                                   IconButton(
                                     constraints: BoxConstraints(),
-                                    icon: Icon(
+                                    icon: const Icon(
                                       Icons.copy,
                                       color: Colors.black,
                                       size: 16,
@@ -268,7 +268,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                           .then((_) {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(SnackBar(
-                                          content: Text(
+                                          content: const Text(
                                               'Copied address to your clipboard'),
                                           backgroundColor:
                                               Colors.black.withOpacity(0.8),

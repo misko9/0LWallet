@@ -5,6 +5,7 @@ import 'package:easy_debounce/easy_debounce.dart';
 import 'package:libra/libra.dart';
 import 'package:provider/provider.dart';
 import '../utils/word_list.dart';
+import 'common/name_input_field.dart';
 import 'wallet_home.dart';
 
 class ImportWallet extends StatefulWidget {
@@ -15,7 +16,7 @@ class ImportWallet extends StatefulWidget {
 }
 
 class _ImportWalletState extends State<ImportWallet> {
-  late TextEditingController _nameController1;
+  late TextEditingController nameController1;
   late TextEditingController _mnemController2;
   final GlobalKey _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
@@ -23,11 +24,11 @@ class _ImportWalletState extends State<ImportWallet> {
   @override
   void initState() {
     super.initState();
-    _nameController1 = TextEditingController();
+    nameController1 = TextEditingController();
     _mnemController2 = TextEditingController();
   }
 
-  Widget _buildNameInput() {
+  /*Widget _buildNameInput() {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       onChanged: (_) => EasyDebounce.debounce(
@@ -89,7 +90,7 @@ class _ImportWalletState extends State<ImportWallet> {
       ),
       maxLines: 1,
     );
-  }
+  }*/
 
   Widget _buildMnenomicInput() {
     return
@@ -126,7 +127,7 @@ class _ImportWalletState extends State<ImportWallet> {
           }
           var addr = Libra().get_address_from_mnem(text);
           var accounts = Provider.of<WalletProvider>(context, listen: false).accountsList;
-          if(accounts.any((element) => element.addr == addr)) {
+          if(accounts.any((element) => element.addr.toLowerCase() == addr.toLowerCase())) {
             return 'Account already in wallet';
           }
           return null;
@@ -209,7 +210,7 @@ class _ImportWalletState extends State<ImportWallet> {
                         ),
                       ),
                     ),
-                    _buildNameInput(),
+                    NameInputField(nameController1: nameController1),
                     const Padding(
                       padding: EdgeInsets.fromLTRB(4.0, 8.0, 0.0, 2.0),
                       child: Text(
@@ -245,7 +246,7 @@ class _ImportWalletState extends State<ImportWallet> {
     final form = _formKey.currentState;
     bool? valid = form?.validate();
     if(valid != null && valid == true) { // Validation passes
-      var name = _nameController1.value.text;
+      var name = nameController1.value.text;
       var mnem = _mnemController2.value.text;
       var addr = Libra().get_address_from_mnem(mnem).toLowerCase();
       Provider.of<WalletProvider>(context, listen: false).addNewAccountByMnem(name, mnem);

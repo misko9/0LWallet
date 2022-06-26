@@ -20,6 +20,7 @@ class WalletProvider extends ChangeNotifier {
   Account get noWalletAccount => nonAccount;
   Account get selectedAccount => _selectedAccount;
 
+  // Don't change case here, early versions allowed uppercase addresses
   Future<String> getMnemonic(String addr) async {
     return await services.getMnemonic(addr);
   }
@@ -41,7 +42,7 @@ class WalletProvider extends ChangeNotifier {
     return _accountsListCache.length;
   }
 
-
+  // addr should not change case
   void setNewSelectedAccount(String addr) {
     if(_selectedAccount.addr != addr) {
       _selectedAccount =
@@ -69,7 +70,7 @@ class WalletProvider extends ChangeNotifier {
   }
 
   ReturnStatus addNewAccountByAddr(String name, String addr) {
-    var newAccount = Account(name: name, addr: addr, watchOnly: true);
+    var newAccount = Account(name: name, addr: addr.toLowerCase(), watchOnly: true);
     _accountsListCache.add(newAccount);
     _accountsListCache.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     services.createAccount(newAccount, "");
@@ -78,8 +79,7 @@ class WalletProvider extends ChangeNotifier {
   }
 
   void saveAccount(Account account) {
-    // TODO Don't use without updating cache (i.e change name, fully syncd, partially syncd, lastFromId)
-    if(_selectedAccount.addr == account.addr){
+    if(_selectedAccount.addr.toLowerCase() == account.addr.toLowerCase()){
       _selectedAccount.name = account.name;
       _selectedAccount.balance = account.balance;
       _selectedAccount.towerHeight = account.towerHeight;
@@ -89,7 +89,7 @@ class WalletProvider extends ChangeNotifier {
       _selectedAccount.watchOnly = account.watchOnly;
     }
 
-    Account accountCache = _accountsListCache.firstWhere((element) => account.addr == element.addr, orElse: () => Account(name: "", addr: "", watchOnly: true));
+    Account accountCache = _accountsListCache.firstWhere((element) => account.addr.toLowerCase() == element.addr.toLowerCase(), orElse: () => Account(name: "", addr: "", watchOnly: true));
     accountCache.name = account.name;
     accountCache.balance = account.balance;
     accountCache.towerHeight = account.towerHeight;
@@ -105,9 +105,9 @@ class WalletProvider extends ChangeNotifier {
   }
 
   void deleteAccount(Account account) {
-    _accountsListCache.removeWhere((element) => account.addr == element.addr);
+    _accountsListCache.removeWhere((element) => account.addr.toLowerCase() == element.addr.toLowerCase());
     services.delete(account);
-    if(_selectedAccount.addr == account.addr) {
+    if(_selectedAccount.addr.toLowerCase() == account.addr.toLowerCase()) {
       if(_accountsListCache.isNotEmpty) {
         _selectedAccount = _accountsListCache.first;
       } else {

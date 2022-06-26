@@ -1,6 +1,7 @@
 import 'package:Oollet/providers/wallet_provider.dart';
 import 'package:Oollet/ui/add_watch_only_address.dart';
 import 'package:Oollet/ui/app_entry.dart';
+import 'package:Oollet/ui/common/name_input_field.dart';
 import 'package:Oollet/utils/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,10 +22,14 @@ class AccountList extends StatefulWidget {
 }
 
 class _AccountListState extends State<AccountList> with WidgetsBindingObserver {
+  late TextEditingController nameController1;
+  final formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    nameController1 = TextEditingController();
   }
 
   @override
@@ -50,7 +55,7 @@ class _AccountListState extends State<AccountList> with WidgetsBindingObserver {
           title: Text('0L Account List'),
         ),
         body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Expanded(child: _buildAccountList(context)),
+          Expanded(child: _buildAccountList(context, nameController1, formKey, setState)),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -63,7 +68,7 @@ class _AccountListState extends State<AccountList> with WidgetsBindingObserver {
   }
 }
 
-Widget _buildAccountList(BuildContext context) {
+Widget _buildAccountList(BuildContext context, TextEditingController nameController1, GlobalKey<FormState> formKey, Function(Function()) setState) {
   return Consumer<WalletProvider>(builder: (context, wallet, child) {
     return Card(
       child: ListView.builder(
@@ -85,7 +90,7 @@ Widget _buildAccountList(BuildContext context) {
                 child: const Icon(Icons.delete_forever),
               ),
               child: Card(
-                color: Color(0xE3FFFFFF),
+                color: Color(0xECFFFFFF),
                 child: Column(children: [
                   ListTile(
                     leading: account.watchOnly
@@ -94,7 +99,7 @@ Widget _buildAccountList(BuildContext context) {
                     title: Text(account.name),
                     subtitle: Text(account.addr.toLowerCase()),
                     onTap: () {
-                      wallet.setNewSelectedAccount(account.addr);
+                      wallet.setNewSelectedAccount(account.addr); // don't change addr case
                       RpcServices.fetchAccountInfo(wallet, account, false);
                       Navigator.pop(context);
                     },
@@ -103,6 +108,57 @@ Widget _buildAccountList(BuildContext context) {
                         onSelected: (int item) async {
                           switch(item) {
                             case 1:
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      titlePadding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0),
+                                      title: Text('Change account name'),
+                                      contentPadding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
+                                      content: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(account.name),
+                                          Text(account.addr.toLowerCase(), style: TextStyle(fontSize: 12),),
+                                          SizedBox(height: 4,),
+                                          Form(
+                                              key: formKey,
+                                              child: NameInputField(nameController1: nameController1,),
+                                          ),
+                                        ],
+                                      ),
+                                      actions: <Widget>[
+                                        ElevatedButton(
+                                          child: Text('CANCEL'),
+                                          onPressed: () {
+                                            nameController1.clear();
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                        ElevatedButton(
+                                          child: Text('OK'),
+                                          onPressed: () {
+                                            final form = formKey.currentState;
+                                            bool? valid = form?.validate();
+                                            if (valid != null && valid ==
+                                                true) { // Validation passes
+                                              account.name = nameController1.value
+                                                  .text;
+                                              nameController1.clear();
+                                              Provider.of<WalletProvider>(
+                                                  context, listen: false)
+                                                  .saveAccount(account);
+                                              Navigator.pop(context);
+                                              // Save new account and open it
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  });
+                              break;
+                            case 2:
                               debugPrint("Copy address");
                               Clipboard.setData(ClipboardData(text: account.addr)).then((_){
                                 ScaffoldMessenger.of(context)
@@ -114,17 +170,10 @@ Widget _buildAccountList(BuildContext context) {
                                 );
                               });
                               break;
-                            case 2:
+                            case 3:
                               Uri explorerUri =
                                 Uri(scheme: 'https', host: '0l.interblockcha.in', path: 'address/${account.addr}');
-                              bool canLaunch = await canLaunchUrl(explorerUri);
-                              if (canLaunch) {
-                                await launchUrl(explorerUri, mode: LaunchMode.externalApplication,);
-                              }
-                              else {
-                                // can't launch url, there is some error
-                                throw "Could not launch url";
-                              }
+                                launchUrl(explorerUri, mode: LaunchMode.externalApplication,);
                               break;
                             default:
                               debugPrint("Default popup menu button");
@@ -135,10 +184,14 @@ Widget _buildAccountList(BuildContext context) {
                         itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
                           const PopupMenuItem<int>(
                             value: 1,
-                            child: Text('Copy address'),
+                            child: Text('Rename account'),
                           ),
                           const PopupMenuItem<int>(
                             value: 2,
+                            child: Text('Copy address'),
+                          ),
+                          const PopupMenuItem<int>(
+                            value: 3,
                             child: Text('View in explorer'),
                           ),
                         ]),
