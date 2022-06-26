@@ -19,7 +19,9 @@ final staticMainnetIps = [
   '65.108.143.43', // svanakin 27
   'fullnode.letsmove.fun', // IdleZone 19
   '142.132.207.50', // bigbubabeast
-  //'ol.misko.io', // misko
+  //'73.181.115.53', // misko
+  'ol.misko.io', // misko
+  '52.15.236.78', // VM
 ];
 final testnetNodes = [
   '148.251.89.142', //alice

@@ -213,7 +213,7 @@ class _SendTransactionState extends State<SendTransaction>
           Padding(
             padding: const EdgeInsets.fromLTRB(4.0, 4.0, 0.0, 2.0),
             child: Text(
-              account.addr,
+              account.addr.toLowerCase(),
               style: const TextStyle(
                 fontSize: 16.0,
                 fontWeight: FontWeight.normal,

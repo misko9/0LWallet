@@ -3,7 +3,9 @@ import 'package:Oollet/ui/add_watch_only_address.dart';
 import 'package:Oollet/ui/app_entry.dart';
 import 'package:Oollet/utils/misc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../services/rpc_services.dart';
 import 'create_new_account.dart';
@@ -96,7 +98,50 @@ Widget _buildAccountList(BuildContext context) {
                       RpcServices.fetchAccountInfo(wallet, account, false);
                       Navigator.pop(context);
                     },
-                    trailing: const Icon(Icons.more_vert),
+                    trailing: PopupMenuButton<int>(
+                      // Callback that sets the selected popup menu item.
+                        onSelected: (int item) async {
+                          switch(item) {
+                            case 1:
+                              debugPrint("Copy address");
+                              Clipboard.setData(ClipboardData(text: account.addr)).then((_){
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(
+                                    SnackBar(
+                                        content: Text('Copied address to your clipboard'),
+                                        backgroundColor: Colors.black.withOpacity(0.8),
+                                    )
+                                );
+                              });
+                              break;
+                            case 2:
+                              Uri explorerUri =
+                                Uri(scheme: 'https', host: '0l.interblockcha.in', path: 'address/${account.addr}');
+                              bool canLaunch = await canLaunchUrl(explorerUri);
+                              if (canLaunch) {
+                                await launchUrl(explorerUri, mode: LaunchMode.externalApplication,);
+                              }
+                              else {
+                                // can't launch url, there is some error
+                                throw "Could not launch url";
+                              }
+                              break;
+                            default:
+                              debugPrint("Default popup menu button");
+                              break;
+                          }
+                        },
+                        icon: const Icon(Icons.more_vert, color: Colors.black54,),
+                        itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+                          const PopupMenuItem<int>(
+                            value: 1,
+                            child: Text('Copy address'),
+                          ),
+                          const PopupMenuItem<int>(
+                            value: 2,
+                            child: Text('View in explorer'),
+                          ),
+                        ]),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 5.0),
