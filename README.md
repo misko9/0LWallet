@@ -1,5 +1,7 @@
 # ![alt text](icons/ol_logo_whitebg_square/res/mipmap-xhdpi/ic_launcher.png) Oollet - A 0L wallet 
 Flutter-based 0L Wallet app for android/ios
+[iOS App](https://apps.apple.com/us/app/oollet-0l-network/id1617356005)
+[Android App](https://play.google.com/store/apps/details?id=io.misko.olwallet)
 
 Currently a proof of concept for a mobile-first, hopefully web/web extension second, 0L wallet app.
 
