@@ -15,7 +15,7 @@ class CreateNewAccount extends StatelessWidget{
       ),
       body: SafeArea(
         child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: const Center(
             child: Text('Use Carpe to create a new account'),
           ),

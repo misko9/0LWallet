@@ -119,7 +119,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         maintainBottomViewPadding: true,
         //minimum: const EdgeInsets.only(bottom: 5.0),
         child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
           child: SmartRefresher(
             controller: _refreshController,
             enablePullUp: false,
@@ -145,333 +145,335 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               }
               _refreshController.refreshCompleted();
             },
-            child: Column(
-              //mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Align(
-                  alignment: const AlignmentDirectional(0, 0),
-                  child: Padding(
-                    padding:
-                        const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
-                    child: VisibilityDetector(
-                      key: const Key('my-widget-key'),
-                      onVisibilityChanged: (visibilityInfo) {
-                        var visiblePercentage =
-                            visibilityInfo.visibleFraction * 100;
-                        debugPrint(
-                            'Widget ${visibilityInfo.key} is $visiblePercentage% visible');
-                        if (visiblePercentage > 80) {
-                          WalletProvider walletProvider =
-                              Provider.of<WalletProvider>(context,
-                                  listen: false);
-                          RpcServices.fetchAccountInfo(walletProvider,
-                                  walletProvider.selectedAccount, true)
-                              .then((int result) {
-                            // Displays only for app resume, pull-to-refresh, & visibility detector > 80%
-                            if (result < 0) {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                duration: const Duration(seconds: 5),
-                                content: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const <Widget>[
-                                    Text(
-                                      "Cannot connect to node(s)",
-                                    )
-                                  ],
-                                ),
-                              ));
-                            }
-                          });
-                        }
-                      },
-                      child: Card(
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        color: const Color(0xFFF5F5F5),
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Consumer<WalletProvider>(
-                                builder: (context, wallet, child) {
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Stack(children: [
-                                  Row(children: [
-                                    wallet.selectedAccount.watchOnly
-                                        ? Icon(Icons.remove_red_eye_outlined)
-                                        : Icon(Icons
-                                            .account_balance_wallet_outlined),
-                                  ]),
-                                  Row(
+            child: SingleChildScrollView(
+              child: Column(
+                //mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: const AlignmentDirectional(0, 0),
+                    child: Padding(
+                      padding:
+                          const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
+                      child: VisibilityDetector(
+                        key: const Key('my-widget-key'),
+                        onVisibilityChanged: (visibilityInfo) {
+                          var visiblePercentage =
+                              visibilityInfo.visibleFraction * 100;
+                          debugPrint(
+                              'Widget ${visibilityInfo.key} is $visiblePercentage% visible');
+                          if (visiblePercentage > 80) {
+                            WalletProvider walletProvider =
+                                Provider.of<WalletProvider>(context,
+                                    listen: false);
+                            RpcServices.fetchAccountInfo(walletProvider,
+                                    walletProvider.selectedAccount, true)
+                                .then((int result) {
+                              // Displays only for app resume, pull-to-refresh, & visibility detector > 80%
+                              if (result < 0) {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  duration: const Duration(seconds: 5),
+                                  content: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.70,
-                                        child: Center(
-                                          child: Text(
-                                            wallet.selectedAccount.name,
-                                            style: TextStyle(fontSize: 18.0),
-                                            overflow: TextOverflow.fade,
-                                            maxLines: 1,
-                                            softWrap: false,
-                                          ),
-                                        ),
-                                      ),
+                                    children: const <Widget>[
+                                      Text(
+                                        "Cannot connect to node(s)",
+                                      )
                                     ],
                                   ),
-                                ]),
-                              );
-                            }),
-                            Consumer<WalletProvider>(
-                                builder: (context, wallet, child) {
-                              String accountAddr =
-                                  wallet.selectedAccount.addr.toLowerCase();
-                              return Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    constraints: const BoxConstraints(),
-                                    icon: const Icon(
-                                      Icons.link,
-                                      color: Colors.blue,
-                                      size: 18,
+                                ));
+                              }
+                            });
+                          }
+                        },
+                        child: Card(
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          color: const Color(0xFFF5F5F5),
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Consumer<WalletProvider>(
+                                  builder: (context, wallet, child) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Stack(children: [
+                                    Row(children: [
+                                      wallet.selectedAccount.watchOnly
+                                          ? Icon(Icons.remove_red_eye_outlined)
+                                          : Icon(Icons
+                                              .account_balance_wallet_outlined),
+                                    ]),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width:
+                                              MediaQuery.of(context).size.width *
+                                                  0.70,
+                                          child: Center(
+                                            child: Text(
+                                              wallet.selectedAccount.name,
+                                              style: TextStyle(fontSize: 18.0),
+                                              overflow: TextOverflow.fade,
+                                              maxLines: 1,
+                                              softWrap: false,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    onPressed: () {
-                                      Uri explorerUri = Uri(
-                                          scheme: 'https',
-                                          host: '0l.interblockcha.in',
-                                          path: 'address/$accountAddr');
-                                      launchUrl(
-                                        explorerUri,
-                                        mode: LaunchMode.externalApplication,
-                                      );
-                                    },
-                                  ),
-                                  Text(accountAddr),
-                                  IconButton(
-                                    constraints: BoxConstraints(),
-                                    icon: const Icon(
-                                      Icons.copy,
-                                      color: Colors.black,
-                                      size: 16,
+                                  ]),
+                                );
+                              }),
+                              Consumer<WalletProvider>(
+                                  builder: (context, wallet, child) {
+                                String accountAddr =
+                                    wallet.selectedAccount.addr.toLowerCase();
+                                return Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                      constraints: const BoxConstraints(),
+                                      icon: const Icon(
+                                        Icons.link,
+                                        color: Colors.blue,
+                                        size: 18,
+                                      ),
+                                      onPressed: () {
+                                        Uri explorerUri = Uri(
+                                            scheme: 'https',
+                                            host: '0l.interblockcha.in',
+                                            path: 'address/$accountAddr');
+                                        launchUrl(
+                                          explorerUri,
+                                          mode: LaunchMode.externalApplication,
+                                        );
+                                      },
                                     ),
-                                    onPressed: () {
-                                      Clipboard.setData(
-                                              ClipboardData(text: accountAddr))
-                                          .then((_) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                          content: const Text(
-                                              'Copied address to your clipboard'),
-                                          backgroundColor:
-                                              Colors.black.withOpacity(0.8),
-                                        ));
-                                      });
-                                    },
-                                  ),
-                                ],
-                              );
-                            }),
-                            const Divider(
-                              height: 10,
-                              thickness: 2,
-                              indent: 20,
-                              endIndent: 20,
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                const Text(
-                                  'Balance:',
-                                ),
-                                Consumer<WalletProvider>(
-                                    builder: (context, wallet, child) {
-                                  return Text(
-                                    doubleFormatUS(
-                                        wallet.selectedAccount.balance),
-                                    textAlign: TextAlign.center,
-                                  );
-                                }),
-                              ],
-                            ),
-                            const Divider(
-                              height: 10,
-                              thickness: 2,
-                              indent: 20,
-                              endIndent: 20,
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.only(top: 10, bottom: 4),
-                              child: Text(
-                                'Tower Height',
-                                style: TextStyle(fontWeight: FontWeight.w500),
+                                    Text(accountAddr),
+                                    IconButton(
+                                      constraints: BoxConstraints(),
+                                      icon: const Icon(
+                                        Icons.copy,
+                                        color: Colors.black,
+                                        size: 16,
+                                      ),
+                                      onPressed: () {
+                                        Clipboard.setData(
+                                                ClipboardData(text: accountAddr))
+                                            .then((_) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: const Text(
+                                                'Copied address to your clipboard'),
+                                            backgroundColor:
+                                                Colors.black.withOpacity(0.8),
+                                          ));
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                );
+                              }),
+                              const Divider(
+                                height: 10,
+                                thickness: 2,
+                                indent: 20,
+                                endIndent: 20,
                               ),
-                            ),
-                            Stack(
-                              children: [
-                                Align(
-                                  alignment: const AlignmentDirectional(0, 0),
-                                  child: Container(
-                                    width: 100,
-                                    height: 100,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: const Color(0xFF660505),
+                              Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  const Text(
+                                    'Balance:',
+                                  ),
+                                  Consumer<WalletProvider>(
+                                      builder: (context, wallet, child) {
+                                    return Text(
+                                      doubleFormatUS( wallet.selectedAccount.balance > .005 ?
+                                          wallet.selectedAccount.balance - .005 : wallet.selectedAccount.balance), // Fix rounding up
+                                      textAlign: TextAlign.center,
+                                    );
+                                  }),
+                                ],
+                              ),
+                              const Divider(
+                                height: 10,
+                                thickness: 2,
+                                indent: 20,
+                                endIndent: 20,
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.only(top: 10, bottom: 4),
+                                child: Text(
+                                  'Tower Height',
+                                  style: TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                              Stack(
+                                children: [
+                                  Align(
+                                    alignment: const AlignmentDirectional(0, 0),
+                                    child: Container(
+                                      width: 100,
+                                      height: 100,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: const Color(0xFF660505),
+                                        ),
+                                      ),
+                                      child: Align(
+                                        alignment:
+                                            const AlignmentDirectional(0, 0),
+                                        child: Consumer<WalletProvider>(
+                                            builder: (context, wallet, child) {
+                                          return Text(
+                                            intFormatUS(wallet
+                                                .selectedAccount.towerHeight),
+                                            textAlign: TextAlign.center,
+                                          );
+                                        }),
                                       ),
                                     ),
-                                    child: Align(
-                                      alignment:
-                                          const AlignmentDirectional(0, 0),
-                                      child: Consumer<WalletProvider>(
-                                          builder: (context, wallet, child) {
-                                        return Text(
-                                          intFormatUS(wallet
-                                              .selectedAccount.towerHeight),
-                                          textAlign: TextAlign.center,
-                                        );
-                                      }),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            /*Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0, 0, 5, 0),
-                                  child: Text(
-                                    'Wallet type:',
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(
-                                      5, 0, 0, 0),
-                                  child: Consumer<WalletProvider>(
-                                      builder: (context, wallet, child) {
-                                    return Text(
-                                        wallet.selectedAccount.walletType);
-                                  }),
-                                ),
-                              ],
-                            ),*/
-                            const SizedBox(
-                              height: 4,
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0, 0, 5, 0),
-                                  child: Text(
-                                    'Proofs in Epoch:',
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(
-                                      5, 0, 0, 0),
-                                  child: Consumer<WalletProvider>(
-                                      builder: (context, wallet, child) {
-                                    return Text(
-                                        "${wallet.selectedAccount.epochProofs}");
-                                  }),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0, 0, 5, 0),
-                                  child: Text(
-                                    'Last Epoch Mined:',
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.fromSTEB(
-                                      5, 0, 0, 0),
-                                  child: Consumer<WalletProvider>(
-                                      builder: (context, wallet, child) {
-                                    return Text(
-                                        "${wallet.selectedAccount.lastEpochMined}");
-                                  }),
-                                ),
-                              ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  10, 10, 10, 10),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  ElevatedButton(
-                                      child: const Text('Receive'),
-                                      onPressed: () => showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return QrCodeDialog(
-                                                addr:
-                                                    Provider.of<WalletProvider>(
-                                                            context,
-                                                            listen: false)
-                                                        .selectedAccount
-                                                        .addr
-                                                        .toLowerCase());
-                                          })),
-                                  ElevatedButton(
-                                    child: const Text(' Send '),
-                                    onPressed: () => Provider.of<
-                                                    WalletProvider>(context,
-                                                listen: false)
-                                            .selectedAccount
-                                            .watchOnly
-                                        ? showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title:
-                                                    Text("Watch-only account"),
-                                                actions: [
-                                                  TextButton(
-                                                    child: const Text("OK"),
-                                                    onPressed: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          )
-                                        : _navigateAndSendTx(context),
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
+                              /*Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 0, 5, 0),
+                                    child: Text(
+                                      'Wallet type:',
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(
+                                        5, 0, 0, 0),
+                                    child: Consumer<WalletProvider>(
+                                        builder: (context, wallet, child) {
+                                      return Text(
+                                          wallet.selectedAccount.walletType);
+                                    }),
+                                  ),
+                                ],
+                              ),*/
+                              const SizedBox(
+                                height: 4,
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 0, 5, 0),
+                                    child: Text(
+                                      'Proofs in Epoch:',
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(
+                                        5, 0, 0, 0),
+                                    child: Consumer<WalletProvider>(
+                                        builder: (context, wallet, child) {
+                                      return Text(
+                                          "${wallet.selectedAccount.epochProofs}");
+                                    }),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 0, 5, 0),
+                                    child: Text(
+                                      'Last Epoch Mined:',
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(
+                                        5, 0, 0, 0),
+                                    child: Consumer<WalletProvider>(
+                                        builder: (context, wallet, child) {
+                                      return Text(
+                                          "${wallet.selectedAccount.lastEpochMined}");
+                                    }),
+                                  ),
+                                ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsetsDirectional.fromSTEB(
+                                    10, 10, 10, 10),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    ElevatedButton(
+                                        child: const Text('Receive'),
+                                        onPressed: () => showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return QrCodeDialog(
+                                                  addr:
+                                                      Provider.of<WalletProvider>(
+                                                              context,
+                                                              listen: false)
+                                                          .selectedAccount
+                                                          .addr
+                                                          .toLowerCase());
+                                            })),
+                                    ElevatedButton(
+                                      child: const Text(' Send '),
+                                      onPressed: () => Provider.of<
+                                                      WalletProvider>(context,
+                                                  listen: false)
+                                              .selectedAccount
+                                              .watchOnly
+                                          ? showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title:
+                                                      Text("Watch-only account"),
+                                                  actions: [
+                                                    TextButton(
+                                                      child: const Text("OK"),
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            )
+                                          : _navigateAndSendTx(context),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

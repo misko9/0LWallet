@@ -184,56 +184,48 @@ class _ImportWalletState extends State<ImportWallet> {
       ),
       body: SafeArea(
         child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.7,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(0),
-                shape: BoxShape.rectangle,
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(4.0, 4.0, 0.0, 2.0),
-                      child: Text(
-                        'Account name:',
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                        ),
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(10.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(4.0, 4.0, 0.0, 2.0),
+                    child: Text(
+                      'Account name:',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    NameInputField(nameController1: nameController1),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(4.0, 8.0, 0.0, 2.0),
-                      child: Text(
-                        'Mnemonic to import:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18.0,
-                        ),
+                  ),
+                  NameInputField(nameController1: nameController1),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(4.0, 8.0, 0.0, 2.0),
+                    child: Text(
+                      'Mnemonic to import:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.0,
                       ),
                     ),
-                    _buildMnenomicInput(),
-                    Align(
-                      alignment: const AlignmentDirectional(1, 0),
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
-                        child: ElevatedButton(
-                          onPressed: _validate,
-                          child: const Text('Submit'),
-                        )
-                      ),
+                  ),
+                  _buildMnenomicInput(),
+                  Align(
+                    alignment: const AlignmentDirectional(1, 0),
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
+                      child: ElevatedButton(
+                        onPressed: _validate,
+                        child: const Text('Submit'),
+                      )
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

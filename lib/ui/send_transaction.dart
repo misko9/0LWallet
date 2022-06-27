@@ -105,10 +105,10 @@ class _SendTransactionState extends State<SendTransaction>
                 child: const Icon(
                   Icons.clear,
                   color: Color(0xFF757575),
-                  size: 22,
+                  size: 18,
                 ),
               )
-            : null,
+            : SizedBox(height: 18),
       ),
       maxLines: 1,
       maxLength: 32,
@@ -176,10 +176,10 @@ class _SendTransactionState extends State<SendTransaction>
                 child: const Icon(
                   Icons.clear,
                   color: Color(0xFF757575),
-                  size: 22,
+                  size: 18,
                 ),
               )
-            : null,
+            : SizedBox(height: 18.0,),
       ),
       maxLines: 1,
       keyboardType: TextInputType.number,
@@ -192,127 +192,65 @@ class _SendTransactionState extends State<SendTransaction>
   Widget _allInputFields(Account account) {
     return Form(
       key: _formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          /*const Padding(
-            padding: EdgeInsets.fromLTRB(4.0, 4.0, 0.0, 2.0),
-            child: Text(
-              " From ",
-              style: TextStyle(
-                decoration: TextDecoration.underline,
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-                fontFeatures: [
-                  FontFeature.slashedZero(),
-                ],
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(6.0, 10.0, 0.0, 2.0),
+              child: Text(
+                'Recipient address:',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),*/
-          Padding(
-            padding: const EdgeInsets.fromLTRB(4.0, 4.0, 0.0, 2.0),
-            child: Text(
-              account.addr.toLowerCase(),
-              style: const TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.normal,
-                fontFeatures: [
-                  FontFeature.slashedZero(),
-                ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10.0, 4.0, 10.0, 4.0),
+              child: _formRecipient(account),
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(6.0, 0, 0.0, 2.0),
+              child: Text(
+                'Amount (GAS):',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0,
+                ),
               ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(6.0, 6.0, 6.0, 6.0),
-                child: Text(
-                  "Balance: ${doubleFormatUS(account.balance)}",
-                  style: const TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const Divider(
-            height: 10,
-            thickness: 1,
-            indent: 20,
-            endIndent: 20,
-            color: Colors.black,
-          ),
-          Card(
-            clipBehavior: Clip.antiAliasWithSaveLayer,
-            color: Colors.blueGrey[100],
-            //color: const Color(0xFFE0E0E0),
-            elevation: 10,
-            //shape: RoundedRectangleBorder(
-            //  borderRadius: BorderRadius.circular(0),
-            //),
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(6.0, 10.0, 0.0, 2.0),
-                  child: Text(
-                    'Recipient address:',
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10.0, 4.0, 200.0, 0),
+              child: _formAmount(account),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: const [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(10.0, 4.0, 10.0, 4.0),
-                  child: _formRecipient(account),
-                ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(6.0, 10.0, 0.0, 2.0),
+                  padding: EdgeInsets.fromLTRB(4.0, 0, 8.0, 8.0),
                   child: Text(
-                    'Amount (GAS):',
+                    'Max tx fee is .01 GAS',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18.0,
+                      fontSize: 14.0,
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10.0, 4.0, 200.0, 4.0),
-                  child: _formAmount(account),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: const [
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(4.0, 8.0, 8.0, 8.0),
-                      child: Text(
-                        'Max tx fee is .01 GAS',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14.0,
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    var account = Provider.of<WalletProvider>(context, listen: false).selectedAccount;
+    var account =
+        Provider.of<WalletProvider>(context, listen: false).selectedAccount;
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text('Send Transaction'),
@@ -355,20 +293,82 @@ class _SendTransactionState extends State<SendTransaction>
       ),
       body: SafeArea(
         child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.85,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(0),
-                shape: BoxShape.rectangle,
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(8.0),
+            child: Card(
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              color: const Color(0xFFF5F5F5),
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(child: _allInputFields(account)),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Stack(
+                      children: [
+                        Row(children: [
+                          Icon(Icons.account_balance_wallet_outlined),
+                        ]),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.70,
+                              child: Center(
+                                child: Text(
+                                  account.name,
+                                  style: TextStyle(fontSize: 18.0),
+                                  overflow: TextOverflow.fade,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(account.addr.toLowerCase()),
+                      ],
+                    ),
+                  ),
+                  const Divider(
+                    height: 10,
+                    thickness: 2,
+                    indent: 20,
+                    endIndent: 20,
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      const Text(
+                        'Balance:',
+                      ),
+                      Text(
+                        doubleFormatUS(account.balance > .005 ?
+                          account.balance - .005 : account.balance), // Fix rounding up
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                  const Divider(
+                    height: 10,
+                    thickness: 2,
+                    indent: 20,
+                    endIndent: 20,
+                  ),
+                  _allInputFields(account),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -393,6 +393,7 @@ class _SendTransactionState extends State<SendTransaction>
       // Validation passes
       var recipient = _recipientController1.value.text;
       var amount = int.tryParse(_amountController2.value.text) ?? 0;
+      FocusManager.instance.primaryFocus?.unfocus();
       _confirmSendDialog(account, recipient, amount);
     }
   }
@@ -419,17 +420,19 @@ class _SendTransactionState extends State<SendTransaction>
       scrollable: true,
       title: const Text("Confirm transaction"),
       content: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('Recipient:',
-              style: TextStyle(fontSize: 14),
-            ),
-            Text(recipient,
-              style: const TextStyle(fontSize: 12),
-            ),
-            Text(''),
-            Text('Amount: ' + amount.toString() + " GAS"),
-          ],
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Text(
+            'Recipient:',
+            style: TextStyle(fontSize: 14),
+          ),
+          Text(
+            recipient,
+            style: const TextStyle(fontSize: 12),
+          ),
+          Text(''),
+          Text('Amount: ' + amount.toString() + " GAS"),
+        ],
       ),
       actions: [
         cancelButton,
@@ -447,24 +450,21 @@ class _SendTransactionState extends State<SendTransaction>
   }
 
   _sendTransaction(Account account, String destAddr, int coins) async {
-    WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    WalletProvider walletProvider =
+        Provider.of<WalletProvider>(context, listen: false);
     await RpcServices.fetchAccountInfo(walletProvider, account, false);
     int seqNum = account.seqNum;
     String mnem = await walletProvider.getMnemonic(account.addr);
-    var signedTx = Libra()
-        .balance_transfer(destAddr, coins, mnem, seqNum);
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 8),
-          content:
-            Row(
-              children: const <Widget>[
-                CircularProgressIndicator(),
-                Text("   Sending...")
-              ],
-            ),
-          )
-    );
+    var signedTx = Libra().balance_transfer(destAddr, coins, mnem, seqNum);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      duration: const Duration(seconds: 18),
+      content: Row(
+        children: const <Widget>[
+          CircularProgressIndicator(),
+          Text("   Sending...")
+        ],
+      ),
+    ));
     debugPrint(signedTx);
     var submitStatus = await LibraRpc.submitRpc(signedTx);
     debugPrint("Submit status: " + submitStatus.toString());
@@ -476,8 +476,8 @@ class _SendTransactionState extends State<SendTransaction>
       for (int i = 0; i < 20; i++) {
         debugPrint("Waiting for tx: " + i.toString());
         await Future.delayed(const Duration(seconds: 1));
-        var txStatus = await LibraRpc.getAccountTransaction(
-            account.addr, seqNum);
+        var txStatus =
+            await LibraRpc.getAccountTransaction(account.addr, seqNum);
         if (txStatus == 0) {
           debugPrint("Tx complete!");
           statusString = "Success";
@@ -523,7 +523,8 @@ class _SendTransactionState extends State<SendTransaction>
     Widget okButton = TextButton(
       child: const Text("OK"),
       onPressed: () {
-        WalletProvider walletProvider = Provider.of<WalletProvider>(context, listen: false);
+        WalletProvider walletProvider =
+            Provider.of<WalletProvider>(context, listen: false);
         RpcServices.fetchAccountInfo(walletProvider, account, false);
         Navigator.of(context).popUntil(ModalRoute.withName(WalletHome.route));
       },
