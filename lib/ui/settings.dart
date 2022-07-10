@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:libra/endpoints.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AppSettings extends StatefulWidget {
   const AppSettings({Key? key}) : super(key: key);
@@ -55,23 +56,44 @@ class _AppSettingsState extends State<AppSettings> {
             ],
           ),
         ),
-        FutureBuilder<PackageInfo>(
-          future: PackageInfo.fromPlatform(),
-          builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.done:
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text('${snapshot.data!.appName}  v${snapshot.data!.version} ',
-                      style: TextStyle(fontSize: 14, color: Colors.white),
-                    ),
-                  ],
-                );
-              default:
-                return const SizedBox(height: 16.0,);
-            }
-          },
+        Padding(
+          padding: const EdgeInsets.fromLTRB(5.0, 2.0, 5.0, 2.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                child: Text("github", style: TextStyle(fontSize: 16, decoration: TextDecoration.none, color: Colors.white)),
+                onTap: () {
+                  Uri githubUri = Uri(
+                      scheme: 'https',
+                      host: 'www.github.com',
+                      path: 'misko9/0LWallet');
+                  launchUrl(
+                    githubUri,
+                    mode: LaunchMode.externalApplication,
+                  );
+                },
+              ),
+              FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.done:
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text('${snapshot.data!.appName}  v${snapshot.data!.version} ',
+                            style: TextStyle(fontSize: 14, decoration: TextDecoration.none, color: Colors.white),
+                          ),
+                        ],
+                      );
+                    default:
+                      return const SizedBox(height: 16.0,);
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ],
     );

@@ -9,20 +9,22 @@ name = "libra"
 crate-type = ["staticlib", "cdylib"]
 
 [dependencies]
-diem-wallet = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
-#diem-wallet = { path = "../../../github/misko9/libra/testsuite/cli/diem-wallet" }
-diem-types = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
-#diem-types = { path = "../../../github/misko9/libra/types" }
-ol-keys = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
-#ol-keys = { path = "../../../github/misko9/libra/ol/keys" }
-ol-types = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
-#ol-types = { path = "../../../github/misko9/libra/ol/types" }
-diem-crypto = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
-#diem-crypto = { path = "../../../github/misko9/libra/crypto/crypto" }
-diem-json-rpc-types  = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
-#diem-json-rpc-types  = { path = "../../../github/misko9/libra/json-rpc/types" }
-diem-transaction-builder = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
-#diem-transaction-builder = { path = "../../../github/misko9/libra/sdk/transaction-builder" }
+#diem-wallet = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+diem-wallet = { path = "../../../libra/testsuite/cli/diem-wallet" }
+#diem-types = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+diem-types = { path = "../../../libra/types" }
+#ol-keys = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+ol-keys = { path = "../../../libra/ol/keys" }
+#ol-types = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+ol-types = { path = "../../../libra/ol/types" }
+#diem-crypto = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+diem-crypto = { path = "../../../libra/crypto/crypto" }
+#diem-json-rpc-types  = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+diem-json-rpc-types  = { path = "../../../libra/json-rpc/types" }
+#diem-transaction-builder = { git = "https://github.com/misko9/libra.git", branch = "olwallet"}
+diem-transaction-builder = { path = "../../../libra/sdk/transaction-builder" }
+resource-viewer = { path = "../../../libra/language/tools/resource-viewer" }
+move-core-types = { path = "../../../libra/language/move-core/types" }
 anyhow = "1.0.38"
 sha2 = "0.9.3"
 #wasm-bindgen = "0.2.79"

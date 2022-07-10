@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/wallet_provider.dart';
 import '../utils/misc.dart';
+import 'app_entry.dart';
 import 'barcode_scanner.dart';
 import 'common/name_input_field.dart';
 import 'wallet_home.dart';
@@ -263,7 +264,9 @@ class _AddWatchOnlyAddressState extends State<AddWatchOnlyAddress> {
       var addr = _addrController2.value.text.toLowerCase();
       Provider.of<WalletProvider>(context, listen: false).addNewAccountByAddr(name, addr);
       Provider.of<WalletProvider>(context, listen: false).setNewSelectedAccount(addr);
-      Navigator.pushReplacementNamed(context, WalletHome.route);
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          WalletHome.route, ModalRoute.withName(AppEntry.route));
+      //Navigator.pushReplacementNamed(context, WalletHome.route);
       // Save new account and open it
     }
   }

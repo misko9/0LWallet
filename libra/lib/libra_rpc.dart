@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'libra_rpc_base.dart';
 import 'models/rpc_get_account.dart';
+import 'models/rpc_get_account_state.dart';
 import 'models/rpc_get_tower_state_view.dart';
 
 enum SubmitStatus {
@@ -12,6 +13,18 @@ enum SubmitStatus {
 
 class LibraRpc {
 // --------- Available RPC methods ----------
+  static getAccountStateRpc(String address) async {
+    var response = await LibraRpcBase.generateRpc("get_account_state_with_proof", [address,]);
+    // turn the streamed response back to a string so that it can be parsed as JSON
+    RpcGetAccountState? accountState;
+    //RpcGetAccount account = RpcGetAccount(diemChainId: 0, diemLedgerVersion: 0, diemLedgerTimestampusec: 0, jsonrpc: "", id: 0);
+    if(response != null && response.statusCode==200){
+      final responseBody = await response.transform(utf8.decoder).join();
+      accountState = rpcGetAccountStateFromJson(responseBody);
+    }
+    return accountState;
+  }
+
   static getAccountRpc(String address) async {
     var response = await LibraRpcBase.generateRpc("get_account", [address,]);
     // turn the streamed response back to a string so that it can be parsed as JSON

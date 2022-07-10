@@ -129,6 +129,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                   Provider.of<WalletProvider>(context, listen: false);
               int result = await RpcServices.fetchAccountInfo(
                   walletProvider, walletProvider.selectedAccount, false);
+              await RpcServices.fetchAccountState(walletProvider, walletProvider.selectedAccount, false);
               // Displays only for app resume, pull-to-refresh, & visibility detector > 80%
               if (result < 0) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -251,6 +252,9 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                             path: 'address/$accountAddr');
                                         launchUrl(
                                           explorerUri,
+                                          //mode: LaunchMode.inAppWebView,
+                                          //webViewConfiguration: const WebViewConfiguration(
+                                          //    headers: <String, String>{'my_header_key': 'my_header_value'}),
                                           mode: LaunchMode.externalApplication,
                                         );
                                       },
@@ -296,8 +300,8 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                   Consumer<WalletProvider>(
                                       builder: (context, wallet, child) {
                                     return Text(
-                                      doubleFormatUS( wallet.selectedAccount.balance > .005 ?
-                                          wallet.selectedAccount.balance - .005 : wallet.selectedAccount.balance), // Fix rounding up
+                                      doubleFormatUS( wallet.selectedAccount.balance >= .005 ?
+                                          wallet.selectedAccount.balance -.004999 : wallet.selectedAccount.balance), // Fix rounding up
                                       textAlign: TextAlign.center,
                                     );
                                   }),

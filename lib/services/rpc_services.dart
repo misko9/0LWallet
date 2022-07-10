@@ -2,13 +2,30 @@ import 'package:Oollet/providers/wallet_provider.dart';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:libra/models/rpc_get_account.dart';
+import 'package:libra/models/rpc_get_account_state.dart';
 import 'package:libra/models/rpc_get_tower_state_view.dart';
 import 'package:libra/libra_rpc.dart';
+import 'package:libra/libra.dart';
 
 import '../models/account.dart';
 
 class RpcServices {
   static const SCALING_FACTOR = 1000000; // 1_000_000
+
+  static Future fetchAccountState(WalletProvider walletProvider, Account account, bool rateLimit) async {
+    RpcGetAccountState acccountState = await LibraRpc.getAccountStateRpc(account.addr);
+    debugPrint("AccountState: ${acccountState.result?.blob}");
+    int unlocked = Libra().get_unlocked_from_state(acccountState.result?.blob ?? "");
+    debugPrint("Unlocked: $unlocked");
+    int transferred = Libra().get_transferred_from_state(acccountState.result?.blob ?? "");
+    debugPrint("Transferred: $transferred");
+    String walletType = Libra().get_wallet_type_from_state(acccountState.result?.blob ?? "");
+    debugPrint("WalletType: $walletType");
+    String vouchers = Libra().get_vouchers_from_state(acccountState.result?.blob ?? "");
+    debugPrint("Vouchers: $vouchers");
+    String ancestry = Libra().get_ancestry_from_state(acccountState.result?.blob ?? "");
+    debugPrint("Ancestry: $ancestry");
+  }
 
   static Future<int> fetchAccountInfo(WalletProvider walletProvider, Account account, bool rateLimit) async {
     int result = 0;

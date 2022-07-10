@@ -33,6 +33,11 @@ typedef rust_get_address_from_mnem_func = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef rust_is_mnem_valid_func = Bool Function(Pointer<Utf8>);
 typedef rust_balance_transfer_func = Pointer<Utf8> Function(Int64 coins, Int64 sequence_num, Pointer<Utf8> dest_addr, Pointer<Utf8> mnem);
 typedef rust_cstr_free = Void Function(Pointer<Utf8> s);
+typedef rust_get_unlocked_from_state_func = Int64 Function(Pointer<Utf8>);
+typedef rust_get_transferred_from_state_func = Int64 Function(Pointer<Utf8>);
+typedef rust_get_wallet_type_from_state_func = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef rust_get_vouchers_from_state_func = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef rust_get_ancestry_from_state_func = Pointer<Utf8> Function(Pointer<Utf8>);
 // For Dart
 //typedef DartAdd = int Function(int a, int b);
 //typedef DartGreeting = Pointer<Utf8> Function(Pointer<Utf8>);
@@ -40,6 +45,11 @@ typedef DartGetAddrFromMnem = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef DartIsMnemValid = bool Function(Pointer<Utf8>);
 typedef DartBalanceTransfer = Pointer<Utf8> Function(int coins, int sequence_num, Pointer<Utf8> dest_addr, Pointer<Utf8> mnem);
 typedef DartCstrFree = void Function(Pointer<Utf8> s);
+typedef DartGetUnlockedFromState = int Function(Pointer<Utf8>);
+typedef DartGetTransferredFromState = int Function(Pointer<Utf8>);
+typedef DartGetWalletTypeFromState = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef DartGetVouchersFromState = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef DartGetAncestryFromState = Pointer<Utf8> Function(Pointer<Utf8>);
 
 class Libra {
   static const MethodChannel _channel = MethodChannel('libra');
@@ -105,4 +115,42 @@ class Libra {
     return myFunction(s);
   }
 
+  int get_unlocked_from_state(String blob) {
+    final fnPointer = _lib!.lookup<NativeFunction<rust_get_unlocked_from_state_func>>('rust_get_unlocked_from_state');
+    final myFunction = fnPointer.asFunction<DartGetUnlockedFromState>();
+    return myFunction(blob.toNativeUtf8());
+  }
+
+  int get_transferred_from_state(String blob) {
+    final fnPointer = _lib!.lookup<NativeFunction<rust_get_transferred_from_state_func>>('rust_get_transferred_from_state');
+    final myFunction = fnPointer.asFunction<DartGetTransferredFromState>();
+    return myFunction(blob.toNativeUtf8());
+  }
+
+  String get_wallet_type_from_state(String blob) {
+    final fnPointer = _lib!.lookup<NativeFunction<rust_get_wallet_type_from_state_func>>('rust_get_wallet_type_from_state');
+    final myFunction = fnPointer.asFunction<DartGetWalletTypeFromState>();
+    Pointer<Utf8> walletType = myFunction(blob.toNativeUtf8());
+    String walletTypeStr = walletType != null ? ""+walletType.toDartString() : "";
+    _rust_cstr_free(walletType);
+    return walletTypeStr;
+  }
+
+  String get_vouchers_from_state(String blob) {
+    final fnPointer = _lib!.lookup<NativeFunction<rust_get_vouchers_from_state_func>>('rust_get_vouchers_from_state');
+    final myFunction = fnPointer.asFunction<DartGetVouchersFromState>();
+    Pointer<Utf8> vouchers = myFunction(blob.toNativeUtf8());
+    String vouchersStr = vouchers != null ? ""+vouchers.toDartString() : "";
+    _rust_cstr_free(vouchers);
+    return vouchersStr;
+  }
+
+  String get_ancestry_from_state(String blob) {
+    final fnPointer = _lib!.lookup<NativeFunction<rust_get_ancestry_from_state_func>>('rust_get_ancestry_from_state');
+    final myFunction = fnPointer.asFunction<DartGetAncestryFromState>();
+    Pointer<Utf8> ancestry = myFunction(blob.toNativeUtf8());
+    String ancestryStr = ancestry != null ? ""+ancestry.toDartString() : "";
+    _rust_cstr_free(ancestry);
+    return ancestryStr;
+  }
 }

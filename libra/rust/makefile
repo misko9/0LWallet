@@ -94,6 +94,7 @@ android1: target/aarch64-linux-android/release/libexample.a
 target/aarch64-linux-android/release/libexample.a: $(SOURCES) ndk-home
 	CC_aarch64_linux_android=$(ANDROID_AARCH64_LINKER) \
 	CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$(ANDROID_AARCH64_LINKER) \
+	RUSTFLAGS='-L /opt/homebrew/lib' \
 		cargo build --target aarch64-linux-android --release
 	@echo "[DONE] $@"
 

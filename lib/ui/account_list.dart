@@ -220,7 +220,7 @@ Widget _buildAccountList(BuildContext context, TextEditingController nameControl
                         Expanded(
                             child: Text(
                           account.balance >= 1000000.0 ? intFormatUS(account.balance.floor())
-                              : doubleFormatUS(account.balance > .005 ? account.balance - .005 : account.balance), // Fix rounding up
+                              : doubleFormatUS(account.balance >= .005 ? account.balance - .004999 : account.balance), // Fix rounding up
                           textAlign: TextAlign.end,
                         )),
                       ],
