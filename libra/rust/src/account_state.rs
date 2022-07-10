@@ -18,20 +18,32 @@ use move_core_types::{
     language_storage::TypeTag,
 };
 use bcs::from_bytes;
+use ol_types::{
+    makewhole_resource::{
+        CreditResource,
+        MakeWholeResource,
+    },
+    gas_resource::GasResource,
+};
 
-// ---get unlocked/transferred (should unlocked be unlocked minus transfer? No!)
-// ---get vouches
-// get vouching-for? (Not sure how to get this)
-// ---get ancestry
+// TODO
+// get vouching-for
 // get auto-pay
+
 // get burn to community
 // validator ip / fullnode ip
-// get carpe repayment balance (do I need to check if it has been completed?)
-// ---get wallet type
 
-/*#[no_mangle]
+#[no_mangle]
 pub extern "C" fn rust_get_make_whole_credits_from_state(blob: *const c_char) ->  u64 {
-    let annotate_blob = get_annotated_account_state_blob(blob);
+    let account_state = get_account_state(blob);
+    if let Ok(ac_st) = account_state {
+        let mk = ac_st.get_resource::<MakeWholeResource>();
+        if let Ok(Some(makewhole_resource)) = mk {
+            let credits = makewhole_resource.credits;
+            return credits[0].coins.value;
+        }
+    }
+    /*let annotate_blob = get_annotated_account_state_blob(blob);
     if let Ok(ab) = annotate_blob {
         let credits = find_value_from_state(
             &ab,
@@ -39,17 +51,18 @@ pub extern "C" fn rust_get_make_whole_credits_from_state(blob: *const c_char) ->
             "Balance".to_string(),
             "credits".to_string(),
         );
-        if let Some(AnnotatedMoveValue::Vector(TypeTag::Address, vec)) = vouches {
-            for v in vec {
-                if let AnnotatedMoveValue::Address(addr) = v {
-                    vouchers.push_str(&(String::from(addr) + ","));
-                    //vouchers.push_str(format!("{},", &v));
-                }
+        if let Some(vec) = credits {
+            //if let Some(AnnotatedMoveValue::Struct(vec)) = credits {
+            let coin = find_value_in_struct(vec, "coins".to_string(),);
+            if let Some(AnnotatedMoveValue::U64(amount)) = coin {
+                return *amount;
             }
+            return 78;
         }
-    }
+        return 77;
+    }*/
     0
-}*/
+}
 
 #[no_mangle]
 pub extern "C" fn rust_get_ancestry_from_state(blob: *const c_char) ->  *mut c_char {
@@ -159,6 +172,25 @@ pub extern "C" fn rust_get_transferred_from_state(blob: *const c_char) -> u64 {
         }
     }
     123
+}
+
+pub fn get_account_state(blob: *const c_char) -> Result<AccountState, &'static str> {
+    let c_str = unsafe { CStr::from_ptr(blob) };
+    let blob_str = match c_str.to_str() {
+        Err(_) => "Error",
+        Ok(string) => string,
+    };
+
+    let bcs_blob = bcs::from_bytes(&(hex::decode(blob_str).unwrap()));
+    if let Ok(account_blob) = bcs_blob {
+        let state_view = NullStateView::default();
+        let annotator = MoveValueAnnotator::new(&state_view);
+        let account_state = AccountState::try_from(&account_blob);
+        if let Ok(ac_st) = account_state {
+            return Ok(ac_st);
+        }
+    }
+    Err("Failed to get Annoted Account State")
 }
 
 pub fn get_annotated_account_state_blob(blob: *const c_char) -> Result<AnnotatedAccountStateBlob, &'static str> {

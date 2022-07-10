@@ -25,6 +25,8 @@ class RpcServices {
     debugPrint("Vouchers: $vouchers");
     String ancestry = Libra().get_ancestry_from_state(acccountState.result?.blob ?? "");
     debugPrint("Ancestry: $ancestry");
+    int credits = Libra().get_make_whole_credits_from_state(acccountState.result?.blob ?? "");
+    debugPrint("Credits: $credits");
   }
 
   static Future<int> fetchAccountInfo(WalletProvider walletProvider, Account account, bool rateLimit) async {

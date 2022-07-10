@@ -38,6 +38,7 @@ typedef rust_get_transferred_from_state_func = Int64 Function(Pointer<Utf8>);
 typedef rust_get_wallet_type_from_state_func = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef rust_get_vouchers_from_state_func = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef rust_get_ancestry_from_state_func = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef rust_get_make_whole_credits_from_state_func = Int64 Function(Pointer<Utf8>);
 // For Dart
 //typedef DartAdd = int Function(int a, int b);
 //typedef DartGreeting = Pointer<Utf8> Function(Pointer<Utf8>);
@@ -50,6 +51,7 @@ typedef DartGetTransferredFromState = int Function(Pointer<Utf8>);
 typedef DartGetWalletTypeFromState = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef DartGetVouchersFromState = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef DartGetAncestryFromState = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef DartGetMakeWholeCreditsFromState = int Function(Pointer<Utf8>);
 
 class Libra {
   static const MethodChannel _channel = MethodChannel('libra');
@@ -153,4 +155,11 @@ class Libra {
     _rust_cstr_free(ancestry);
     return ancestryStr;
   }
+
+  int get_make_whole_credits_from_state(String blob) {
+    final fnPointer = _lib!.lookup<NativeFunction<rust_get_make_whole_credits_from_state_func>>('rust_get_make_whole_credits_from_state');
+    final myFunction = fnPointer.asFunction<DartGetMakeWholeCreditsFromState>();
+    return myFunction(blob.toNativeUtf8());
+  }
+
 }
