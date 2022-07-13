@@ -2034,6 +2034,7 @@ dependencies = [
  "serde_json",
  "sha2 0.9.9",
  "url",
+ "vdf",
 ]
 
 [[package]]

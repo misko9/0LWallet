@@ -43,24 +43,18 @@ pub extern "C" fn rust_balance_transfer(coins: u64, sequence_num: u64, dest_addr
     if let Ok(account_address) = AccountAddress::from_hex_literal(&*address) {
         match custom_balance_transfer(account_address, coins, tx_params, sequence_num) {
             Ok(r) => {
-                //let signed_tx = serde_json::to_string(&r);
                 let encodedPayload = hex::encode(bcs::to_bytes(&r).unwrap());
-                //CString::new(signed_tx.unwrap()).unwrap().into_raw()
                 CString::new(encodedPayload).unwrap().into_raw()
-                //Ok(format!("Tx Success: {:?}", r))
             },
             Err(_) => {
                 CString::new("Err1").unwrap().into_raw()
-                //Err(&format!("Could not do tx"))
             },
         }
     } else {
         CString::new("Err2").unwrap().into_raw()
-        //Err(CarpeError::misc("Could not parse account address"))
     }
 }
 
-// create an account by sending coin to it
 pub fn custom_balance_transfer(destination: AccountAddress, coins: u64, tx_params: TxParams, sequence_number: u64)
     -> Result<SignedTransaction, Error> {
     // NOTE: coins here do not have the scaling factor. Rescaling is the responsibility of the Move script. See the script in ol_accounts.move for detail.

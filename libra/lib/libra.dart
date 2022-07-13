@@ -39,6 +39,7 @@ typedef rust_get_wallet_type_from_state_func = Pointer<Utf8> Function(Pointer<Ut
 typedef rust_get_vouchers_from_state_func = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef rust_get_ancestry_from_state_func = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef rust_get_make_whole_credits_from_state_func = Int64 Function(Pointer<Utf8>);
+typedef rust_solve_proof_func = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>, Int64, Int64);
 // For Dart
 //typedef DartAdd = int Function(int a, int b);
 //typedef DartGreeting = Pointer<Utf8> Function(Pointer<Utf8>);
@@ -52,6 +53,7 @@ typedef DartGetWalletTypeFromState = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef DartGetVouchersFromState = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef DartGetAncestryFromState = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef DartGetMakeWholeCreditsFromState = int Function(Pointer<Utf8>);
+typedef DartSolveProof = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Utf8>, int, int);
 
 class Libra {
   static const MethodChannel _channel = MethodChannel('libra');
@@ -160,6 +162,15 @@ class Libra {
     final fnPointer = _lib!.lookup<NativeFunction<rust_get_make_whole_credits_from_state_func>>('rust_get_make_whole_credits_from_state');
     final myFunction = fnPointer.asFunction<DartGetMakeWholeCreditsFromState>();
     return myFunction(blob.toNativeUtf8());
+  }
+
+  String solve_proof(String last_hash, String mnem, int sequence_num, int height) {
+    final fnPointer = _lib!.lookup<NativeFunction<rust_solve_proof_func>>('rust_solve_proof');
+    final myFunction = fnPointer.asFunction<DartSolveProof>();
+    Pointer<Utf8> result = myFunction(last_hash.toNativeUtf8(), mnem.toNativeUtf8(), sequence_num, height);
+    String resultStr = result != null ? ""+result.toDartString() : "";
+    _rust_cstr_free(result);
+    return resultStr;
   }
 
 }

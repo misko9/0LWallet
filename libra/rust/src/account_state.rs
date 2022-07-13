@@ -121,7 +121,7 @@ pub extern "C" fn rust_get_wallet_type_from_state(blob: *const c_char) ->  *mut 
             "is_frozen".to_string(),
         );
         match community {
-            Some(AnnotatedMoveValue::Bool(v)) => return CString::new("Community").unwrap().into_raw(),
+            Some(AnnotatedMoveValue::Bool(_)) => return CString::new("Community").unwrap().into_raw(),
             _ => ()
         }
         let unlocked = find_value_from_state(
@@ -131,7 +131,7 @@ pub extern "C" fn rust_get_wallet_type_from_state(blob: *const c_char) ->  *mut 
             "unlocked".to_string(),
         );
         match unlocked {
-            Some(AnnotatedMoveValue::U64(v)) => return CString::new("Slow").unwrap().into_raw(),
+            Some(AnnotatedMoveValue::U64(_)) => return CString::new("Slow").unwrap().into_raw(),
             _ => ()
         }
     }

@@ -25,6 +25,7 @@ diem-json-rpc-types  = { path = "../../../libra/json-rpc/types" }
 diem-transaction-builder = { path = "../../../libra/sdk/transaction-builder" }
 resource-viewer = { path = "../../../libra/language/tools/resource-viewer" }
 move-core-types = { path = "../../../libra/language/move-core/types" }
+vdf = { path = "../../../libra/ol/verifiable_delay/vdf" }
 anyhow = "1.0.38"
 sha2 = "0.9.3"
 #wasm-bindgen = "0.2.79"
