@@ -43,24 +43,6 @@ pub extern "C" fn rust_get_make_whole_credits_from_state(blob: *const c_char) ->
             return credits[0].coins.value;
         }
     }
-    /*let annotate_blob = get_annotated_account_state_blob(blob);
-    if let Ok(ab) = annotate_blob {
-        let credits = find_value_from_state(
-            &ab,
-            "MakeWhole".to_string(),
-            "Balance".to_string(),
-            "credits".to_string(),
-        );
-        if let Some(vec) = credits {
-            //if let Some(AnnotatedMoveValue::Struct(vec)) = credits {
-            let coin = find_value_in_struct(vec, "coins".to_string(),);
-            if let Some(AnnotatedMoveValue::U64(amount)) = coin {
-                return *amount;
-            }
-            return 78;
-        }
-        return 77;
-    }*/
     0
 }
 
@@ -121,7 +103,7 @@ pub extern "C" fn rust_get_wallet_type_from_state(blob: *const c_char) ->  *mut 
             "is_frozen".to_string(),
         );
         match community {
-            Some(AnnotatedMoveValue::Bool(v)) => return CString::new("Community").unwrap().into_raw(),
+            Some(AnnotatedMoveValue::Bool(_)) => return CString::new("Community").unwrap().into_raw(),
             _ => ()
         }
         let unlocked = find_value_from_state(
@@ -131,7 +113,7 @@ pub extern "C" fn rust_get_wallet_type_from_state(blob: *const c_char) ->  *mut 
             "unlocked".to_string(),
         );
         match unlocked {
-            Some(AnnotatedMoveValue::U64(v)) => return CString::new("Slow").unwrap().into_raw(),
+            Some(AnnotatedMoveValue::U64(_)) => return CString::new("Slow").unwrap().into_raw(),
             _ => ()
         }
     }
