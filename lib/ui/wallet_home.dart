@@ -104,7 +104,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         leading: IconButton(
           icon: Icon(
             Icons.settings_outlined,
-            color: Colors.black,
+            color: Colors.grey,
             size: 24,
           ),
           onPressed: () => Navigator.push(

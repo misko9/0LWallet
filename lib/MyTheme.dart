@@ -17,7 +17,7 @@ class MyTheme with ChangeNotifier {
 
   static ThemeData get lightTheme {
     const ColorScheme colorScheme = ColorScheme(
-      primary: Colors.blueGrey, //app bar
+      primary: Colors.black87, //app bar
       secondary: Colors.blue, // Settings switch icon on
       background: Colors.white10,
       surface: Colors.white30,
@@ -26,7 +26,7 @@ class MyTheme with ChangeNotifier {
       onError: Colors.red,
       onPrimary: Colors.yellow, // app bar text, actions
       onSecondary: Colors.orange,
-      onSurface: Colors.blueGrey,
+      onSurface: Colors.black87,
       brightness: Brightness.light,
     );
     ListTileThemeData listTileTheme = ListTileThemeData(

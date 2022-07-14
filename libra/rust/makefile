@@ -101,18 +101,21 @@ target/aarch64-linux-android/release/libexample.a: $(SOURCES) ndk-home
 target/armv7-linux-androideabi/release/libexample.a: $(SOURCES) ndk-home
 	CC_armv7_linux_androideabi=$(ANDROID_ARMV7_LINKER) \
 	CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=$(ANDROID_ARMV7_LINKER) \
+	RUSTFLAGS='-L ../android/src/main/jniLibs/armeabi-v7a' \
 		cargo build --target armv7-linux-androideabi --release
 	@echo "[DONE] $@"
 
 target/i686-linux-android/release/libexample.a: $(SOURCES) ndk-home
 	CC_i686_linux_android=$(ANDROID_I686_LINKER) \
 	CARGO_TARGET_I686_LINUX_ANDROID_LINKER=$(ANDROID_I686_LINKER) \
+	RUSTFLAGS='-L ../android/src/main/jniLibs/x86' \
 		cargo  build --target i686-linux-android --release
 	@echo "[DONE] $@"
 
 target/x86_64-linux-android/release/libexample.a: $(SOURCES) ndk-home
 	CC_x86_64_linux_android=$(ANDROID_X86_64_LINKER) \
 	CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER=$(ANDROID_X86_64_LINKER) \
+	RUSTFLAGS='-L ../android/src/main/jniLibs/x86_64' \
 		cargo build --target x86_64-linux-android --release
 	@echo "[DONE] $@"
 		

@@ -64,7 +64,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "io.misko.olwallet"
+        applicationId "io.misko.proofripper"
         minSdkVersion 24
         //minSdkVersion flutter.minSdkVersion
         //targetSdkVersion 32
