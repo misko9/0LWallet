@@ -33,7 +33,7 @@ class AppEntryState extends State<AppEntry> {
     return Scaffold(
       body: SafeArea(
           child: Center(
-            child: Image.asset('icons/ol_logo_whitebg_circle/res/mipmap-xxhdpi/ic_launcher.png')
+            child: Image.asset('icons/proof_ripper_square/res/mipmap-xxhdpi/ic_launcher.png')
           )
       )
     );

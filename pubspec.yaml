@@ -55,6 +55,8 @@ dependencies:
   intl: ^0.17.0
   package_info_plus: ^1.4.2
   url_launcher: ^6.1.4
+  toggle_switch: ^2.0.1
+  liquid_progress_indicator: ^0.4.0
 
 dev_dependencies:
   flutter_test:
@@ -81,8 +83,8 @@ flutter:
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
-    - icons/ol_logo_whitebg_square/1024.png
-    - icons/ol_logo_whitebg_circle/res/mipmap-xxhdpi/ic_launcher.png
+    - icons/proof_ripper_square/play_store_512.png
+    - icons/proof_ripper_square/res/mipmap-xxhdpi/ic_launcher.png
     - icons/ic_mycoinwallet4.xml
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

@@ -11,7 +11,7 @@
     </queries>
 
     <application
-        android:label="Oollet"
+        android:label="Proof Ripper"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

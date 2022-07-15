@@ -35,7 +35,7 @@ class QrCodeDialog extends StatelessWidget {
                 size: 160,
                 gapless: true,
                 embeddedImage:
-                const AssetImage('icons/ol_logo_whitebg_square/1024.png'),
+                const AssetImage('icons/proof_ripper_square/play_store_512.png'),
                 embeddedImageStyle: QrEmbeddedImageStyle(
                   size: Size(40, 40),
                 ),

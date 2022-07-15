@@ -1,3 +1,6 @@
+import 'dart:isolate';
+
+import 'package:Oollet/services/vdf_services.dart';
 import 'package:flutter/material.dart';
 import 'package:libra/libra.dart';
 import '../models/account.dart';
@@ -38,6 +41,11 @@ class WalletProvider extends ChangeNotifier {
         _selectedAccount = _accountsListCache.first;
       }
       // Fetch data
+    }
+    for (var element in _accountsListCache) {
+      if(element.mining) {
+        VdfServices.startProofRipper(this, element);
+      }
     }
     return _accountsListCache.length;
   }
@@ -87,6 +95,8 @@ class WalletProvider extends ChangeNotifier {
       _selectedAccount.seqNum = account.seqNum;
       _selectedAccount.epochProofs = account.epochProofs;
       _selectedAccount.watchOnly = account.watchOnly;
+      _selectedAccount.mining = account.mining;
+      _selectedAccount.lastProofHash = account.lastProofHash;
     }
 
     Account accountCache = _accountsListCache.firstWhere((element) => account.addr.toLowerCase() == element.addr.toLowerCase(), orElse: () => Account(name: "", addr: "", watchOnly: true));
@@ -98,6 +108,8 @@ class WalletProvider extends ChangeNotifier {
     accountCache.epochProofs = account.epochProofs;
     accountCache.lastEpochMined = account.lastEpochMined;
     accountCache.watchOnly = account.watchOnly;
+    accountCache.mining = account.mining;
+    accountCache.lastProofHash = account.lastProofHash;
 
     _accountsListCache.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     services.saveAccount(account);
@@ -117,5 +129,24 @@ class WalletProvider extends ChangeNotifier {
       services.setSelectedAccount(_selectedAccount.addr);
     }
     notifyListeners();
+  }
+
+  void setProofRipperOnAccount(Account account, bool on){
+    Account accountCache = _accountsListCache.firstWhere((element) => account.addr.toLowerCase() == element.addr.toLowerCase(), orElse: () => Account(name: "", addr: "", watchOnly: true));
+    if(accountCache.mining != on) {
+      account.mining = on;
+      saveAccount(account);
+      if(on) {
+        debugPrint("Starting proofs");
+        VdfServices.startProofRipper(this, account);
+      }
+    }
+    if(!on && account.isolate != null) {
+      debugPrint("Stopping proofs");
+      account.port?.close();
+      account.port = null;
+      account.isolate?.kill(priority: Isolate.immediate);
+      account.isolate = null;
+    }
   }
 }

@@ -69,9 +69,7 @@ class RpcServices {
             account.epochProofs =
                 getTowerStateView.result!.actualCountProofsInEpoch ?? 0;
             account.lastEpochMined = getTowerStateView.result!.latestEpochMining ?? account.lastEpochMined;
-            if(account.name == "AppStore1" && !rateLimit) {
-              doProof(walletProvider, account, getTowerStateView.result?.previousProofHash ?? "1234");
-            }
+            account.lastProofHash = getTowerStateView.result?.previousProofHash ?? "";
           }
         } else {
           result = -1;
@@ -86,19 +84,5 @@ class RpcServices {
     for (var element in walletProvider.accountsList) {
       await fetchAccountInfo(walletProvider, element, rateLimit);
     }
-  }
-
-  // Temporary test function, not for production
-  static Future doProof(WalletProvider walletProvider, Account account, String lastHash) async {
-    //String solve_proof(String last_hash, String mnem, int sequence_num, int height) {
-    String mnem = await walletProvider.getMnemonic(account.addr);
-    String proofResult = Libra().solve_proof(
-      lastHash,
-      mnem,
-      account.seqNum,
-      account.towerHeight + 1,
-    );
-    debugPrint("Proof results: $proofResult");
-    LibraRpc.submitRpc(proofResult);
   }
 }
