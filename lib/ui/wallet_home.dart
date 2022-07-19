@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:Oollet/providers/wallet_provider.dart';
 import 'package:Oollet/services/rpc_services.dart';
 import 'package:Oollet/ui/qr_code_dialog.dart';
@@ -10,9 +12,11 @@ import 'package:libra/libra.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import '../models/account.dart';
 import 'account_list.dart';
 
 class WalletHome extends StatefulWidget {
@@ -522,28 +526,50 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                   totalSwitches: 2,
                                   labels: const ['On', 'Off'],
                                   radiusStyle: true,
-                                  onToggle: (index) {
+                                  onToggle: (index) async {
                                     int minerCount = 0;
                                     for (var element in wallet.accountsList) {
                                       if (element.mining) {
                                         minerCount++;
                                       }
                                     }
+                                    bool original = wallet.selectedAccount.mining;
                                     wallet.setProofRipperOnAccount(
                                       wallet.selectedAccount,
                                       ((index == 0) && (!wallet.selectedAccount.watchOnly) && (minerCount == 0)) ? true : false,
                                     );
+                                    setState(() {});
                                     if((minerCount == 1) && (index == 0)) {
-                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                        duration: const Duration(seconds: 5),
+                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                        duration: Duration(seconds: 5),
                                         content:
                                             Text("Building tower on another account"),
                                       ));
+                                    }
+                                    /*if ((index == 1) && original) {
+                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                        duration: Duration(seconds: 5),
+                                        content:
+                                        Text("Shutting down...", style: TextStyle(color: Colors.yellow),),
+                                      ));
+                                      await Future.delayed(const Duration(seconds: 3));
+                                      //Restart.restartApp(webOrigin: '/');
+                                      exit(0);
+                                    }*/
+                                    // When turning on, show dialog for best usage
+                                    if ((index == 0) && !original && (minerCount == 0) &&
+                                        (wallet.selectedAccount.balance >= .01)) {
+                                      // Show dialog
+                                      _proofUsageDialog(context);
                                     }
                                   },
                                 );
                               }),
                             ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(2.0),
+                            child: const Text("(Transitioning from on->off will close the app)"),
                           ),
                           Consumer<WalletProvider>(
                               builder: (context, wallet, child) {
@@ -577,6 +603,37 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
           ),
         ),
       ),
+    );
+  }
+
+  _proofUsageDialog(BuildContext context) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: const Text("Got it!"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Usage:"),
+      content: const Text("Building tower is not for your primary device. " +
+          "Mobile devices aggressively suspend for battery conservation. " +
+          "For the best performance: plug in the device, from \"Developer options\" set \"Stay awake\", " +
+          "and keep the app in the foreground."),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }

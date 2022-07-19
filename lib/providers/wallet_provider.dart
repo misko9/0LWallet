@@ -143,6 +143,7 @@ class WalletProvider extends ChangeNotifier {
     }
     if(!on && account.isolate != null) {
       debugPrint("Stopping proofs");
+      account.port?.sendPort.send('STOP');
       account.port?.close();
       account.port = null;
       account.isolate?.kill(priority: Isolate.immediate);

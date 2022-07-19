@@ -2019,6 +2019,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bcs",
+ "byteorder",
  "diem-crypto",
  "diem-json-rpc-types",
  "diem-transaction-builder",
