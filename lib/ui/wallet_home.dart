@@ -546,7 +546,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                             Text("Building tower on another account"),
                                       ));
                                     }
-                                    /*if ((index == 1) && original) {
+                                    if ((index == 1) && original) {
                                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                                         duration: Duration(seconds: 5),
                                         content:
@@ -555,7 +555,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                       await Future.delayed(const Duration(seconds: 3));
                                       //Restart.restartApp(webOrigin: '/');
                                       exit(0);
-                                    }*/
+                                    }
                                     // When turning on, show dialog for best usage
                                     if ((index == 0) && !original && (minerCount == 0) &&
                                         (wallet.selectedAccount.balance >= .01)) {
@@ -618,7 +618,8 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
       title: const Text("Usage:"),
-      content: const Text("Building tower is not for your primary device. " +
+      content: const Text("Don\'t worry, your proof has already started. " +
+          "But building tower is NOT for your primary device. " +
           "Mobile devices aggressively suspend for battery conservation. " +
           "For the best performance: plug in the device, from \"Developer options\" set \"Stay awake\", " +
           "and keep the app in the foreground."),

@@ -110,7 +110,6 @@ dist/
 # Package files
 *.jar
 *.aab
-*.apk
 # Maven
 target/
 dist/
