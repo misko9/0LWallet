@@ -1,7 +1,10 @@
 # ![alt text](icons/ol_logo_whitebg_square/res/mipmap-xhdpi/ic_launcher.png) Oollet - A 0L wallet 
-Flutter-based 0L Wallet app for android/ios
+Flutter-based 0L Wallet app for Android/iOS
 - [iOS App](https://apps.apple.com/us/app/oollet-0l-network/id1617356005)
 - [Android App](https://play.google.com/store/apps/details?id=io.misko.olwallet)
+
+Flutter-based tower app for Android (For best experience: plug in the device, from "Developer Options" set "Stay Awake", and keep the app in the foreground. I do not recommend this testing on your primary mobile device.)
+- [Proof Ripper](https://github.com/misko9/0LWallet/raw/proof_ripper/releases/proof_ripper_v1.2.16.apk)
 
 Currently, slightly more than a proof of concept for a mobile-first, hopefully web/web extension second, 0L wallet app.
 
