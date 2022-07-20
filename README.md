@@ -3,6 +3,9 @@ Flutter-based 0L Wallet app for android/ios
 - [iOS App](https://apps.apple.com/us/app/oollet-0l-network/id1617356005)
 - [Android App](https://play.google.com/store/apps/details?id=io.misko.olwallet)
 
+Flutter-based tower app for Android (For best experience: plug in the device, from "Developer Options" set "Stay Awake", and keep the app in the foreground. Not recommended on your primary mobile device.)
+- [Proof Ripper apk](https://github.com/misko9/0LWallet/raw/proof_ripper/releases/proof_ripper_v1.2.16.apk)
+
 Currently, slightly more than a proof of concept for a mobile-first, hopefully web/web extension second, 0L wallet app.
 
 It is a single codebase for both platforms with an FFI interface to the Libra rust library used by carpe/tower. Mnemonic is stored in secure storage protected by the respective platform's Keychain/Keystore services. Incognito keyboard is also used when inputing sensitive data. The UI is pretty basic right now, but after adding your account, you'll be able to see your balance, tower height, send, and receive. Codebase is common between android/ios. Since web doesn't support FFI, the next item on my roadmap is to get the rust code to be Webassembly/WASM compatible.
