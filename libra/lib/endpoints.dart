@@ -19,7 +19,6 @@ final staticMainnetIps = [
   '65.108.143.43', // svanakin 27
   'fullnode.letsmove.fun', // IdleZone 19
   '142.132.207.50', // bigbubabeast
-  //'73.181.115.53', // misko
   'ol.misko.io', // misko
   '52.15.236.78', // VM
 ];
@@ -32,6 +31,8 @@ final testnetNodes = [
 class Endpoints {
   static DateTime lastUpdate = DateTime.utc(1969);
   static List<String> goodNodes = [];
+  static List<Endpoint> currentEndpointList = [];
+  static int rmsVersion = 0;
   static bool testnetEnabled = false;
   static String overridePeers = '';
   static var lock = Lock();
@@ -97,7 +98,8 @@ class Endpoints {
       int totalSquaredVersion = 0;
       int avgVersion = 0;
       int meanSquaredVersion = 0;
-      int rmsVersion = 0;
+      rmsVersion = 0;
+      currentEndpointList = endpointList;
       for (var endpoint in endpointList) {
         debugPrint("Endpoint: ${endpoint.url}, Version: ${endpoint.version}, is_avail: ${endpoint.is_avail}");
         if(endpoint.is_avail) {

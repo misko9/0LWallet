@@ -48,7 +48,7 @@ pub extern "C" fn rust_get_make_whole_credits_from_state(blob: *const c_char) ->
 
 #[no_mangle]
 pub extern "C" fn rust_get_ancestry_from_state(blob: *const c_char) ->  *mut c_char {
-    let mut ancestry: String = "None,".to_owned();
+    let mut ancestry: String = "".to_owned();
     let annotate_blob = get_annotated_account_state_blob(blob);
     if let Ok(ab) = annotate_blob {
         let ancestors = find_value_from_state(
@@ -71,7 +71,7 @@ pub extern "C" fn rust_get_ancestry_from_state(blob: *const c_char) ->  *mut c_c
 
 #[no_mangle]
 pub extern "C" fn rust_get_vouchers_from_state(blob: *const c_char) ->  *mut c_char {
-    let mut vouchers: String = "None,".to_owned();
+    let mut vouchers: String = "".to_owned();
     let annotate_blob = get_annotated_account_state_blob(blob);
     if let Ok(ab) = annotate_blob {
         let vouches = find_value_from_state(
@@ -118,6 +118,24 @@ pub extern "C" fn rust_get_wallet_type_from_state(blob: *const c_char) ->  *mut 
         }
     }
     CString::new("Normal").unwrap().into_raw()
+}
+
+#[no_mangle]
+pub extern "C" fn rust_is_validator_from_state(blob: *const c_char) -> bool {
+    let annotate_blob = get_annotated_account_state_blob(blob);
+    if let Ok(ab) = annotate_blob {
+        let validator = find_value_from_state(
+            &ab,
+            "ValidatorUniverse".to_string(),
+            "JailedBit".to_string(),
+            "is_jailed".to_string(),
+        );
+        match validator {
+            Some(AnnotatedMoveValue::Bool(_)) => return true,
+            _ => ()
+        }
+    }
+    false
 }
 
 #[no_mangle]

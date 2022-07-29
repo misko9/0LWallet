@@ -1,5 +1,6 @@
 import 'package:Oollet/providers/wallet_provider.dart';
 import 'package:Oollet/services/rpc_services.dart';
+import 'package:Oollet/ui/engineering_mode.dart';
 import 'package:Oollet/ui/qr_code_dialog.dart';
 import 'package:Oollet/ui/send_transaction.dart';
 import 'package:Oollet/ui/settings.dart';
@@ -11,7 +12,9 @@ import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import '../models/account.dart';
 import 'account_list.dart';
+import 'account_state_widgets.dart';
 
 class WalletHome extends StatefulWidget {
   const WalletHome({Key? key}) : super(key: key);
@@ -83,6 +86,23 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
       appBar: AppBar(
         title: const Text('0L Wallet'),
         actions: [
+          Consumer<WalletProvider>(builder: (context, wallet, child) {
+            return wallet.engModeEnabled
+                ? IconButton(
+                    icon: const Icon(
+                      Icons.developer_mode,
+                      color: Colors.white60,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const EngineeringMode()),
+                      );
+                    },
+                  )
+                : Container();
+          }),
           IconButton(
             icon: const Icon(
               //Image.asset('icons/ic_mycoinwallet4.xml'),
@@ -129,7 +149,8 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                   Provider.of<WalletProvider>(context, listen: false);
               int result = await RpcServices.fetchAccountInfo(
                   walletProvider, walletProvider.selectedAccount, false);
-              await RpcServices.fetchAccountState(walletProvider, walletProvider.selectedAccount, false);
+              await RpcServices.fetchAccountState(
+                  walletProvider, walletProvider.selectedAccount, false);
               // Displays only for app resume, pull-to-refresh, & visibility detector > 80%
               if (result < 0) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -146,9 +167,10 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               }
               _refreshController.refreshCompleted();
             },
+            //child: SingleChildScrollView(
             child: SingleChildScrollView(
               child: Column(
-                //mainAxisSize: MainAxisSize.max,
+                mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Align(
@@ -210,12 +232,14 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                               .account_balance_wallet_outlined),
                                     ]),
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         SizedBox(
-                                          width:
-                                              MediaQuery.of(context).size.width *
-                                                  0.70,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.70,
                                           child: Center(
                                             child: Text(
                                               wallet.selectedAccount.name,
@@ -268,8 +292,8 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                         size: 16,
                                       ),
                                       onPressed: () {
-                                        Clipboard.setData(
-                                                ClipboardData(text: accountAddr))
+                                        Clipboard.setData(ClipboardData(
+                                                text: accountAddr))
                                             .then((_) {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
@@ -292,7 +316,8 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                               ),
                               Row(
                                 mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   const Text(
                                     'Balance:',
@@ -300,8 +325,12 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                   Consumer<WalletProvider>(
                                       builder: (context, wallet, child) {
                                     return Text(
-                                      doubleFormatUS( wallet.selectedAccount.balance >= .005 ?
-                                          wallet.selectedAccount.balance -.004999 : wallet.selectedAccount.balance), // Fix rounding up
+                                      doubleFormatUS(
+                                          wallet.selectedAccount.balance >= .005
+                                              ? wallet.selectedAccount.balance -
+                                                  .004999
+                                              : wallet.selectedAccount.balance),
+                                      // Fix rounding up
                                       textAlign: TextAlign.center,
                                     );
                                   }),
@@ -350,27 +379,27 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                 ],
                               ),
                               /*Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        0, 0, 5, 0),
-                                    child: Text(
-                                      'Wallet type:',
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Padding(
+                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                          0, 0, 5, 0),
+                                      child: Text(
+                                        'Wallet type:',
+                                      ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsetsDirectional.fromSTEB(
-                                        5, 0, 0, 0),
-                                    child: Consumer<WalletProvider>(
-                                        builder: (context, wallet, child) {
-                                      return Text(
-                                          wallet.selectedAccount.walletType);
-                                    }),
-                                  ),
-                                ],
-                              ),*/
+                                    Padding(
+                                      padding: const EdgeInsetsDirectional.fromSTEB(
+                                          5, 0, 0, 0),
+                                      child: Consumer<WalletProvider>(
+                                          builder: (context, wallet, child) {
+                                        return Text(
+                                            wallet.selectedAccount.walletType);
+                                      }),
+                                    ),
+                                  ],
+                                ),*/
                               const SizedBox(
                                 height: 4,
                               ),
@@ -386,8 +415,9 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsetsDirectional.fromSTEB(
-                                        5, 0, 0, 0),
+                                    padding:
+                                        const EdgeInsetsDirectional.fromSTEB(
+                                            5, 0, 0, 0),
                                     child: Consumer<WalletProvider>(
                                         builder: (context, wallet, child) {
                                       return Text(
@@ -408,8 +438,9 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsetsDirectional.fromSTEB(
-                                        5, 0, 0, 0),
+                                    padding:
+                                        const EdgeInsetsDirectional.fromSTEB(
+                                            5, 0, 0, 0),
                                     child: Consumer<WalletProvider>(
                                         builder: (context, wallet, child) {
                                       return Text(
@@ -432,13 +463,13 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                             context: context,
                                             builder: (BuildContext context) {
                                               return QrCodeDialog(
-                                                  addr:
-                                                      Provider.of<WalletProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .selectedAccount
-                                                          .addr
-                                                          .toLowerCase());
+                                                  addr: Provider.of<
+                                                              WalletProvider>(
+                                                          context,
+                                                          listen: false)
+                                                      .selectedAccount
+                                                      .addr
+                                                      .toLowerCase());
                                             })),
                                     ElevatedButton(
                                       child: const Text(' Send '),
@@ -451,8 +482,8 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                               context: context,
                                               builder: (BuildContext context) {
                                                 return AlertDialog(
-                                                  title:
-                                                      Text("Watch-only account"),
+                                                  title: Text(
+                                                      "Watch-only account"),
                                                   actions: [
                                                     TextButton(
                                                       child: const Text("OK"),
@@ -476,9 +507,49 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                       ),
                     ),
                   ),
+                  Card(
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    color: const Color(0xFFF5F5F5),
+                    elevation: 5,
+                    margin: EdgeInsets.all(12.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Text(
+                            "Account State",
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline),
+                          ),
+                        ),
+                        Consumer<WalletProvider>(
+                            builder: (context, wallet, child) {
+                          Account account = wallet.selectedAccount;
+                          String walletType = account.walletType;
+                          switch (walletType) {
+                            case "Normal":
+                              return normalWalletAccountState(account);
+                            case "Slow":
+                              return slowWalletAccountState(account);
+                            case "Community":
+                              return communityWalletAccountState(account);
+                            default:
+                              return normalWalletAccountState(account);
+                          }
+                        }),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
+            //),
           ),
         ),
       ),

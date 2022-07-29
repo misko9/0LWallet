@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:provider/provider.dart';
 import '../providers/wallet_provider.dart';
 import 'account_list.dart';
+import 'settings.dart';
 import 'wallet_home.dart';
 
 /// Splash
@@ -18,7 +20,9 @@ class AppEntryState extends State<AppEntry> {
 
   Future<void> _getAccountList() async {
     //await Future.delayed(const Duration(seconds: 1));
-    var numOfAccounts = await Provider.of<WalletProvider>(context, listen: false).getAccountListSizeAndInit();
+    var wallet = Provider.of<WalletProvider>(context, listen: false);
+    wallet.setEngMode(Settings.getValue<bool>(AppSettings.keyEngModeEnabled) ?? false);
+    var numOfAccounts = await wallet.getAccountListSizeAndInit();
     if(numOfAccounts == 0) {
       Navigator.of(context).pushReplacementNamed(AccountList.route);
       //Navigator.of(context).pushReplacementNamed(NewUser.route);

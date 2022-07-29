@@ -11,6 +11,12 @@ class Account {
   int lastEpochMined;
   bool watchOnly;
   DateTime lastUpdated;
+  double makeWhole;
+  String ancestry;
+  double unlocked;
+  double transferred;
+  bool isValidator;
+  String vouchers;
 
   Account({
     required this.name,
@@ -22,6 +28,12 @@ class Account {
     this.epochProofs = 0,
     this.lastEpochMined = 0,
     required this.watchOnly,
+    this.makeWhole = 0.0,
+    this.ancestry = "",
+    this.unlocked = 0.0,
+    this.transferred = 0.0,
+    this.isValidator = false,
+    this.vouchers = "",
   }) : lastUpdated = DateTime(1969);
 
   factory Account.fromJson(addr, Map<String, dynamic> jsonData) {
@@ -35,6 +47,12 @@ class Account {
       epochProofs: jsonData['epochProofs'] ?? 0,
       lastEpochMined: jsonData['lastEpochMined'] ?? 0,
       watchOnly: jsonData['watchOnly'] ?? false,
+      makeWhole: jsonData['makeWhole'] ?? 0.0,
+      ancestry: jsonData['ancestry'] ?? "",
+      unlocked: jsonData['unlocked'] ?? 0.0,
+      transferred: jsonData['transferred'] ?? 0.0,
+      isValidator: jsonData['isValidator'] ?? false,
+      vouchers: jsonData['vouchers'] ?? "",
     );
   }
 
@@ -47,6 +65,12 @@ class Account {
     'epochProofs': account.epochProofs,
     'lastEpochMined': account.lastEpochMined,
     'watchOnly': account.watchOnly,
+    'makeWhole': account.makeWhole,
+    'ancestry': account.ancestry,
+    'unlocked': account.unlocked,
+    'transferred': account.transferred,
+    'isValidator': account.isValidator,
+    'vouchers': account.vouchers,
   };
   static String serialize(Account account) => jsonEncode(Account.toMap(account));
   static Account deserialize(String addr, String json) => Account.fromJson(addr, jsonDecode(json));

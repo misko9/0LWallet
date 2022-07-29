@@ -14,11 +14,13 @@ class WalletProvider extends ChangeNotifier {
   static final nonAccount = Account(name: 'Not initialized', addr: 'abcdefgh', watchOnly: true);
   int selectedAccountIndex = 0;
   Account _selectedAccount = nonAccount;
+  bool _engModeEnabled = false;
 
   // This public getter cannot be modified by any other object
   List<Account> get accountsList => List.unmodifiable(_accountsListCache);
   Account get noWalletAccount => nonAccount;
   Account get selectedAccount => _selectedAccount;
+  bool get engModeEnabled => _engModeEnabled;
 
   // Don't change case here, early versions allowed uppercase addresses
   Future<String> getMnemonic(String addr) async {
@@ -116,6 +118,11 @@ class WalletProvider extends ChangeNotifier {
       }
       services.setSelectedAccount(_selectedAccount.addr);
     }
+    notifyListeners();
+  }
+
+  void setEngMode(bool value) {
+    _engModeEnabled = value;
     notifyListeners();
   }
 }
