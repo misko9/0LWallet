@@ -21,7 +21,6 @@ class AppEntryState extends State<AppEntry> {
   Future<void> _getAccountList() async {
     //await Future.delayed(const Duration(seconds: 1));
     var wallet = Provider.of<WalletProvider>(context, listen: false);
-    wallet.setEngMode(Settings.getValue<bool>(AppSettings.keyEngModeEnabled) ?? false);
     var numOfAccounts = await wallet.getAccountListSizeAndInit();
     if(numOfAccounts == 0) {
       Navigator.of(context).pushReplacementNamed(AccountList.route);

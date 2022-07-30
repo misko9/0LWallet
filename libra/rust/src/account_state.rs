@@ -139,6 +139,24 @@ pub extern "C" fn rust_is_validator_from_state(blob: *const c_char) -> bool {
 }
 
 #[no_mangle]
+pub extern "C" fn rust_is_operator_from_state(blob: *const c_char) -> bool {
+    let annotate_blob = get_annotated_account_state_blob(blob);
+    if let Ok(ab) = annotate_blob {
+        let validator = find_value_from_state(
+            &ab,
+            "ValidatorOperatorConfig".to_string(),
+            "ValidatorOperatorConfig".to_string(),
+            "human_name".to_string(),
+        );
+        match validator {
+            Some(AnnotatedMoveValue::Bytes(_)) => return true,
+            _ => ()
+        }
+    }
+    false
+}
+
+#[no_mangle]
 pub extern "C" fn rust_get_unlocked_from_state(blob: *const c_char) -> u64 {
     let annotate_blob = get_annotated_account_state_blob(blob);
     if let Ok(ab) = annotate_blob {

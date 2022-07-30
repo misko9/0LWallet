@@ -40,6 +40,8 @@ typedef rust_get_vouchers_from_state_func = Pointer<Utf8> Function(Pointer<Utf8>
 typedef rust_get_ancestry_from_state_func = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef rust_get_make_whole_credits_from_state_func = Int64 Function(Pointer<Utf8>);
 typedef rust_is_validator_from_state_func = Bool Function(Pointer<Utf8>);
+typedef rust_is_operator_from_state_func = Bool Function(Pointer<Utf8>);
+typedef rust_claim_make_whole_func = Pointer<Utf8> Function(Int64 sequence_num, Pointer<Utf8> mnem);
 // For Dart
 //typedef DartAdd = int Function(int a, int b);
 //typedef DartGreeting = Pointer<Utf8> Function(Pointer<Utf8>);
@@ -54,6 +56,8 @@ typedef DartGetVouchersFromState = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef DartGetAncestryFromState = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef DartGetMakeWholeCreditsFromState = int Function(Pointer<Utf8>);
 typedef DartIsValidatorFromState = bool Function(Pointer<Utf8>);
+typedef DartIsOperatorFromState = bool Function(Pointer<Utf8>);
+typedef DartClaimMakeWhole = Pointer<Utf8> Function(int sequence_num, Pointer<Utf8> mnem);
 
 class Libra {
   static const MethodChannel _channel = MethodChannel('libra');
@@ -168,6 +172,21 @@ class Libra {
     final fnPointer = _lib!.lookup<NativeFunction<rust_is_validator_from_state_func>>('rust_is_validator_from_state');
     final myFunction = fnPointer.asFunction<DartIsValidatorFromState>();
     return myFunction(blob.toNativeUtf8());
+  }
+
+  bool is_operator_from_state(String blob) {
+    final fnPointer = _lib!.lookup<NativeFunction<rust_is_operator_from_state_func>>('rust_is_operator_from_state');
+    final myFunction = fnPointer.asFunction<DartIsOperatorFromState>();
+    return myFunction(blob.toNativeUtf8());
+  }
+
+  String claim_make_whole(String mnem, int sequence_num) {
+    final fnPointer = _lib!.lookup<NativeFunction<rust_claim_make_whole_func>>('rust_claim_make_whole');
+    var myFunction = fnPointer.asFunction<DartClaimMakeWhole>();
+    Pointer<Utf8> signedTx = myFunction(sequence_num, mnem.toNativeUtf8());
+    String finalSignedTx = signedTx != null ? ""+signedTx.toDartString() : "null";
+    _rust_cstr_free(signedTx);
+    return finalSignedTx;
   }
 
 }

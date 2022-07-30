@@ -13,6 +13,7 @@ use mirai_annotations::*;
 
 pub mod balance_transfer;
 pub mod account_state;
+pub mod make_whole;
 
 #[no_mangle]
 pub extern "C" fn rust_cstr_free(s: *mut c_char) {

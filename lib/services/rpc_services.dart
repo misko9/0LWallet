@@ -31,6 +31,10 @@ class RpcServices {
           if(credits > 0) {
             account.makeWhole = credits.toDouble() / SCALING_FACTOR;
           }
+          bool isOperator = Libra().is_operator_from_state(accountState.result?.blob ?? "");
+          if(isOperator) {
+            account.isOperator = isOperator;
+          }
           break;
         case "Slow":
           int unlocked = Libra().get_unlocked_from_state(

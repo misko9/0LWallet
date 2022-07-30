@@ -16,6 +16,7 @@ class Account {
   double unlocked;
   double transferred;
   bool isValidator;
+  bool isOperator;
   String vouchers;
 
   Account({
@@ -33,6 +34,7 @@ class Account {
     this.unlocked = 0.0,
     this.transferred = 0.0,
     this.isValidator = false,
+    this.isOperator = false,
     this.vouchers = "",
   }) : lastUpdated = DateTime(1969);
 
@@ -52,6 +54,7 @@ class Account {
       unlocked: jsonData['unlocked'] ?? 0.0,
       transferred: jsonData['transferred'] ?? 0.0,
       isValidator: jsonData['isValidator'] ?? false,
+      isOperator: jsonData['isOperator'] ?? false,
       vouchers: jsonData['vouchers'] ?? "",
     );
   }
@@ -70,6 +73,7 @@ class Account {
     'unlocked': account.unlocked,
     'transferred': account.transferred,
     'isValidator': account.isValidator,
+    'isOperator': account.isOperator,
     'vouchers': account.vouchers,
   };
   static String serialize(Account account) => jsonEncode(Account.toMap(account));

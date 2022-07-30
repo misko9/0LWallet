@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:libra/libra.dart';
 import '../models/account.dart';
 import '../services/account_services.dart';
+import '../ui/settings.dart';
 
 enum ReturnStatus {
   okay,
@@ -41,6 +43,7 @@ class WalletProvider extends ChangeNotifier {
       }
       // Fetch data
     }
+    _engModeEnabled = Settings.getValue<bool>(AppSettings.keyEngModeEnabled) ?? false;
     return _accountsListCache.length;
   }
 

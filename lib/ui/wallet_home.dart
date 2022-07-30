@@ -14,7 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import '../models/account.dart';
 import 'account_list.dart';
-import 'account_state_widgets.dart';
+import 'account_state_widget.dart';
 
 class WalletHome extends StatefulWidget {
   const WalletHome({Key? key}) : super(key: key);
@@ -78,11 +78,10 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.blueGrey[100],
       appBar: AppBar(
         title: const Text('0L Wallet'),
         actions: [
@@ -507,45 +506,9 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                       ),
                     ),
                   ),
-                  Card(
-                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                    color: const Color(0xFFF5F5F5),
-                    elevation: 5,
-                    margin: EdgeInsets.all(12.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Text(
-                            "Account State",
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline),
-                          ),
-                        ),
-                        Consumer<WalletProvider>(
-                            builder: (context, wallet, child) {
-                          Account account = wallet.selectedAccount;
-                          String walletType = account.walletType;
-                          switch (walletType) {
-                            case "Normal":
-                              return normalWalletAccountState(account);
-                            case "Slow":
-                              return slowWalletAccountState(account);
-                            case "Community":
-                              return communityWalletAccountState(account);
-                            default:
-                              return normalWalletAccountState(account);
-                          }
-                        }),
-                      ],
-                    ),
-                  ),
+                  Consumer<WalletProvider>(builder: (context, wallet, child) {
+                    return AccountStateWidget(account: wallet.selectedAccount);
+                  }),
                 ],
               ),
             ),
