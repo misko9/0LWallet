@@ -47,6 +47,23 @@ pub extern "C" fn rust_get_make_whole_credits_from_state(blob: *const c_char) ->
 }
 
 #[no_mangle]
+pub extern "C" fn rust_is_make_whole_claimed_from_state(blob: *const c_char) ->  bool {
+    let account_state = get_account_state(blob);
+    if let Ok(ac_st) = account_state {
+        let mk = ac_st.get_resource::<MakeWholeResource>();
+        if let Ok(Some(makewhole_resource)) = mk {
+            //if let AnnotatedMoveValue::Bool(claimed) = makewhole_resource.credits.claimed {
+            //    return claimed;
+            //}
+            let credits = makewhole_resource.credits;
+            return credits[0].claimed;
+            //return credits[0].coins.value;
+        }
+    }
+    false
+}
+
+#[no_mangle]
 pub extern "C" fn rust_get_ancestry_from_state(blob: *const c_char) ->  *mut c_char {
     let mut ancestry: String = "".to_owned();
     let annotate_blob = get_annotated_account_state_blob(blob);

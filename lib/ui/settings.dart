@@ -12,9 +12,7 @@ class AppSettings extends StatefulWidget {
   static const route = '/AppSettings';
   static const String keyTestnetSwitch = 'key-testnet-switch';
   static const String keyOverridePeers = 'key-override-peers';
-  static const String keyEngModeAvailable = 'key-eng-mode-available';
   static const String keyEngModeEnabled = 'key-eng-mode-enabled';
-  static bool engModeAvailable = false;
 
   @override
   _AppSettingsState createState() => _AppSettingsState();
@@ -25,7 +23,13 @@ class _AppSettingsState extends State<AppSettings> {
   DateTime lastTapTime = DateTime.now().subtract(Duration(seconds: 20));
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var wallet = Provider.of<WalletProvider>(context, listen: false);
     return Column(
       children: [
         Expanded(
@@ -61,7 +65,7 @@ class _AppSettingsState extends State<AppSettings> {
                   return null;
                 },
               ),
-              AppSettings.engModeAvailable ? SwitchSettingsTile(
+              wallet.engModeAvailable ? SwitchSettingsTile(
                 settingKey: AppSettings.keyEngModeEnabled,
                 title: 'Engineering Mode',
                 enabledLabel: 'Enabled',
@@ -69,7 +73,7 @@ class _AppSettingsState extends State<AppSettings> {
                 enabled: true,
                 onChange: (value) {
                   debugPrint('Eng mode enabled: $value');
-                  Provider.of<WalletProvider>(context, listen: false).setEngMode(value);
+                  wallet.setEngModeEnabled(value);
                 },
               ) : Container(),
             ],
@@ -117,11 +121,10 @@ class _AppSettingsState extends State<AppSettings> {
                           if (engModeCount >= 7) {
                             engModeCount = 0;
                             setState(() {
-                              AppSettings.engModeAvailable = !(AppSettings.engModeAvailable);
-                              Settings.setValue<bool>(AppSettings.keyEngModeAvailable, !(AppSettings.engModeAvailable));
-                              if(!AppSettings.engModeAvailable) {
+                              wallet.setEngModeAvailable(!(wallet.engModeAvailable));
+                              if(!wallet.engModeAvailable) {
                                 Settings.setValue<bool>(AppSettings.keyEngModeEnabled, false);
-                                Provider.of<WalletProvider>(context, listen: false).setEngMode(false);
+                                wallet.setEngModeEnabled(false);
                               }
                             });
                           }

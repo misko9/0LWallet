@@ -60,6 +60,40 @@ pub extern "C" fn rust_balance_transfer(coins: u64, sequence_num: u64, dest_addr
     }
 }
 
+#[no_mangle]
+pub extern "C" fn rust_community_balance_transfer(coins: u64, sequence_num: u64, dest_addr: *const c_char, mnem: *const c_char) -> *mut c_char  {
+    let c_str = unsafe { CStr::from_ptr(mnem)};
+    let mnem_str = match c_str.to_str() {
+        Err(_) => "Error",
+        Ok(string) => string,
+    };
+    let tx_params = get_custom_tx_params(mnem_str.clone().parse().unwrap()).unwrap();
+
+    let c_str2 = unsafe { CStr::from_ptr(dest_addr)};
+    let dest_addr_str = match c_str2.to_str() {
+        Err(_) => "Error",
+        Ok(string) => string,
+    };
+    let address = "0x".to_owned() + dest_addr_str;
+    if let Ok(account_address) = AccountAddress::from_hex_literal(&*address) {
+        match custom_community_balance_transfer(account_address, coins, tx_params, sequence_num) {
+            Ok(r) => {
+                //let signed_tx = serde_json::to_string(&r);
+                let encodedPayload = hex::encode(bcs::to_bytes(&r).unwrap());
+                //CString::new(signed_tx.unwrap()).unwrap().into_raw()
+                CString::new(encodedPayload).unwrap().into_raw()
+                //Ok(format!("Tx Success: {:?}", r))
+            },
+            Err(_) => {
+                CString::new("Err1").unwrap().into_raw()
+                //Err(&format!("Could not do tx"))
+            },
+        }
+    } else {
+        CString::new("Err2").unwrap().into_raw()
+        //Err(CarpeError::misc("Could not parse account address"))
+    }
+}
 // create an account by sending coin to it
 pub fn custom_balance_transfer(destination: AccountAddress, coins: u64, tx_params: TxParams, sequence_number: u64)
     -> Result<SignedTransaction, Error> {
@@ -67,6 +101,24 @@ pub fn custom_balance_transfer(destination: AccountAddress, coins: u64, tx_param
     let script = transaction_builder::encode_balance_transfer_script_function(
         destination,
         coins,
+    );
+
+    sign_tx(
+        script,
+        &tx_params,
+        sequence_number,
+        ChainId::new(1)
+    )
+}
+
+// create an account by sending coin to it
+pub fn custom_community_balance_transfer(destination: AccountAddress, coins: u64, tx_params: TxParams, sequence_number: u64)
+                               -> Result<SignedTransaction, Error> {
+    // NOTE: coins here do not have the scaling factor. Rescaling is the responsibility of the Move script. See the script in ol_accounts.move for detail.
+    let script = transaction_builder::encode_community_transfer_script_function(
+        destination,
+        coins,
+        vec![],
     );
 
     sign_tx(

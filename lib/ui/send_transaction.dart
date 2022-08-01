@@ -134,8 +134,11 @@ class _SendTransactionState extends State<SendTransaction>
         if (amount == null) {
           return 'Invalid number';
         }
-        if (account.balance < amount) {
+        if (account.balance < (amount + .01)) {
           return 'Not enough funds';
+        }
+        if ((account.walletType == "Slow") && (account.unlocked < (amount + .01))) {
+          return 'Not enough unlocked coins';
         }
         return null;
       },
@@ -455,7 +458,12 @@ class _SendTransactionState extends State<SendTransaction>
     await RpcServices.fetchAccountInfo(walletProvider, account, false);
     int seqNum = account.seqNum;
     String mnem = await walletProvider.getMnemonic(account.addr);
-    var signedTx = Libra().balance_transfer(destAddr, coins, mnem, seqNum);
+    String signedTx = "";
+    if(account.walletType == "Community") {
+      signedTx = Libra().community_balance_transfer(destAddr, coins, mnem, seqNum);
+    } else {
+      signedTx = Libra().balance_transfer(destAddr, coins, mnem, seqNum);
+    }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       duration: const Duration(seconds: 18),
       content: Row(
@@ -466,33 +474,37 @@ class _SendTransactionState extends State<SendTransaction>
       ),
     ));
     debugPrint(signedTx);
-    var submitStatus = await LibraRpc.submitRpc(signedTx);
-    debugPrint("Submit status: " + submitStatus.toString());
-    var statusString = "Timed-out";
-    if (submitStatus == -99999) {
-      statusString = "Failure - can't connect";
-      _sendButtonDialogTemp(context, statusString, account);
-    } else {
-      for (int i = 0; i < 20; i++) {
-        debugPrint("Waiting for tx: " + i.toString());
-        await Future.delayed(const Duration(seconds: 1));
-        var txStatus =
+    if(await RpcServices.isSendCommunityAndRecipientSlow(account, destAddr)) {
+      var submitStatus = await LibraRpc.submitRpc(signedTx);
+      debugPrint("Submit status: " + submitStatus.toString());
+      var statusString = "Timed-out";
+      if (submitStatus == -99999) {
+        statusString = "Failure - can't connect";
+        _sendButtonDialogTemp(context, statusString, account);
+      } else {
+        for (int i = 0; i < 20; i++) {
+          debugPrint("Waiting for tx: " + i.toString());
+          await Future.delayed(const Duration(seconds: 1));
+          var txStatus =
             await LibraRpc.getAccountTransaction(account.addr, seqNum);
-        if (txStatus == 0) {
-          debugPrint("Tx complete!");
-          statusString = "Success";
-          break;
-        } else if (txStatus == -127) {
-          debugPrint("Tx completed with move_abort");
-          statusString = "Failed, move abort";
-          break;
-        } else if (txStatus == -128) {
-          debugPrint("Tx completed with move_abort & null");
-          statusString = "Failed, is account on-chain?";
-          break;
+          if (txStatus == 0) {
+            debugPrint("Tx complete!");
+            statusString = "Success";
+            break;
+          } else if (txStatus == -127) {
+            debugPrint("Tx completed with move_abort");
+            statusString = "Failed, move abort";
+            break;
+          } else if (txStatus == -128) {
+            debugPrint("Tx completed with move_abort & null");
+            statusString = "Failed, is account on-chain?";
+            break;
+          }
         }
+        _sendButtonDialogTemp(context, statusString, account);
       }
-      _sendButtonDialogTemp(context, statusString, account);
+    } else {
+      _sendButtonDialogTemp(context, "Failed, destination account is not a slow wallet", account);
     }
   }
 
@@ -525,7 +537,11 @@ class _SendTransactionState extends State<SendTransaction>
       onPressed: () {
         WalletProvider walletProvider =
             Provider.of<WalletProvider>(context, listen: false);
-        RpcServices.fetchAccountInfo(walletProvider, account, false);
+        RpcServices.fetchAccountInfo(walletProvider, account, false).then((int result) {
+          if (result >= 0) {
+            RpcServices.fetchAccountState(walletProvider, account);
+          }
+        });
         Navigator.of(context).popUntil(ModalRoute.withName(WalletHome.route));
       },
     );
@@ -548,4 +564,5 @@ class _SendTransactionState extends State<SendTransaction>
       },
     );
   }
+
 }

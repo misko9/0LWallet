@@ -6,6 +6,7 @@ import '../models/account.dart';
 class AccountServices {
   final _secureRepository = const FlutterSecureStorage();
   static const String _keySelected = "Selected";
+  static const String _keyEngModeAvailable = "EngModeAvail";
 
   Future<void> createAccount(Account newAccount, String mnem) async {
     var _sharedPref = await SharedPreferences.getInstance();
@@ -46,7 +47,7 @@ class AccountServices {
     List<Account> _accountList = [];
     for (var key in _accountKeys) {
       var account = _sharedPref.getString(key);
-      if (key != _keySelected && account != null) {
+      if ((key != _keySelected) && (key != _keyEngModeAvailable) && account != null) {
         _accountList.add(Account.deserialize(key, account));
       }
     }
@@ -67,5 +68,16 @@ class AccountServices {
   Future setSelectedAccount(String selectedAccount) async {
     var sharedPref = await SharedPreferences.getInstance();
     await sharedPref.setString(_keySelected, selectedAccount);
+  }
+
+  Future<bool> getEngModeAvail() async {
+    var sharedPref = await SharedPreferences.getInstance();
+    var readSelectedAccount = sharedPref.getString(_keyEngModeAvailable);
+    return ((readSelectedAccount != null) && (readSelectedAccount == "true")) ? true : false;
+  }
+
+  Future setEngModeAvail(bool engModeAvailable) async {
+    var sharedPref = await SharedPreferences.getInstance();
+    await sharedPref.setString(_keyEngModeAvailable, engModeAvailable.toString());
   }
 }

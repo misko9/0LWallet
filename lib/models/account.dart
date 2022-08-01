@@ -12,6 +12,7 @@ class Account {
   bool watchOnly;
   DateTime lastUpdated;
   double makeWhole;
+  bool makeWholeClaimed;
   String ancestry;
   double unlocked;
   double transferred;
@@ -36,6 +37,7 @@ class Account {
     this.isValidator = false,
     this.isOperator = false,
     this.vouchers = "",
+    this.makeWholeClaimed = false,
   }) : lastUpdated = DateTime(1969);
 
   factory Account.fromJson(addr, Map<String, dynamic> jsonData) {
@@ -50,6 +52,7 @@ class Account {
       lastEpochMined: jsonData['lastEpochMined'] ?? 0,
       watchOnly: jsonData['watchOnly'] ?? false,
       makeWhole: jsonData['makeWhole'] ?? 0.0,
+      makeWholeClaimed: jsonData['makeWholeClaimed'] ?? false,
       ancestry: jsonData['ancestry'] ?? "",
       unlocked: jsonData['unlocked'] ?? 0.0,
       transferred: jsonData['transferred'] ?? 0.0,
@@ -69,6 +72,7 @@ class Account {
     'lastEpochMined': account.lastEpochMined,
     'watchOnly': account.watchOnly,
     'makeWhole': account.makeWhole,
+    'makeWholeClaimed': account.makeWholeClaimed,
     'ancestry': account.ancestry,
     'unlocked': account.unlocked,
     'transferred': account.transferred,

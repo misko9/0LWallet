@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import '../models/account.dart';
 import 'account_list.dart';
 import 'account_state_widget.dart';
 
@@ -64,6 +63,9 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               ],
             ),
           ));
+        } else {
+          RpcServices.fetchAccountState(
+              walletProvider, walletProvider.selectedAccount);
         }
       });
     }
@@ -121,7 +123,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
         ],
         automaticallyImplyLeading: false,
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.settings_outlined,
             color: Colors.black,
             size: 24,
@@ -149,7 +151,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
               int result = await RpcServices.fetchAccountInfo(
                   walletProvider, walletProvider.selectedAccount, false);
               await RpcServices.fetchAccountState(
-                  walletProvider, walletProvider.selectedAccount, false);
+                  walletProvider, walletProvider.selectedAccount);
               // Displays only for app resume, pull-to-refresh, & visibility detector > 80%
               if (result < 0) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -205,6 +207,9 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                     ],
                                   ),
                                 ));
+                              } else {
+                                RpcServices.fetchAccountState(
+                                    walletProvider, walletProvider.selectedAccount);
                               }
                             });
                           }
@@ -227,7 +232,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                     Row(children: [
                                       wallet.selectedAccount.watchOnly
                                           ? Icon(Icons.remove_red_eye_outlined)
-                                          : Icon(Icons
+                                          : const Icon(Icons
                                               .account_balance_wallet_outlined),
                                     ]),
                                     Row(
@@ -481,7 +486,7 @@ class WalletHomeState extends State<WalletHome> with WidgetsBindingObserver {
                                               context: context,
                                               builder: (BuildContext context) {
                                                 return AlertDialog(
-                                                  title: Text(
+                                                  title: const Text(
                                                       "Watch-only account"),
                                                   actions: [
                                                     TextButton(

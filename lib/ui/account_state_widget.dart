@@ -46,11 +46,13 @@ class _AccountStateWidgetState extends State<AccountStateWidget> {
                       "Account State",
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
+                        //fontWeight: FontWeight.bold,
+                        //decoration: TextDecoration.underline,
                       ),
                     ),
                   ),
+                  Divider(height: 0, thickness: 3, indent: 10, endIndent: 10,),
+                  SizedBox(height: 8,),
                   _accountStateContents(widget.account),
                 ],
               ),
@@ -100,7 +102,7 @@ class _AccountStateWidgetState extends State<AccountStateWidget> {
   }
 
   _makeWhole(Account account) {
-    return account.makeWhole > 0.00001
+    return ((account.makeWhole > 0.00001) && !(account.makeWholeClaimed))
         ? Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: Row(
@@ -224,7 +226,6 @@ class _AccountStateWidgetState extends State<AccountStateWidget> {
         ],
       ),
     ));
-    debugPrint(signedTx);
     var submitStatus = await LibraRpc.submitRpc(signedTx);
     debugPrint("Submit status: " + submitStatus.toString());
     var statusString = "Timed-out";

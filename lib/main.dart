@@ -29,7 +29,6 @@ Future<void> initSettings() async {
   );
   Endpoints.testnetEnabled = false; //Settings.getValue<bool>(AppSettings.keyTestnetSwitch) ?? false;
   Endpoints.overridePeers = Settings.getValue<String>(AppSettings.keyOverridePeers) ?? '';
-  AppSettings.engModeAvailable = Settings.getValue<bool>(AppSettings.keyEngModeAvailable) ?? false;
 }
 
 class MyApp extends StatelessWidget {

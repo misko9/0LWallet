@@ -16,6 +16,7 @@ class WalletProvider extends ChangeNotifier {
   static final nonAccount = Account(name: 'Not initialized', addr: 'abcdefgh', watchOnly: true);
   int selectedAccountIndex = 0;
   Account _selectedAccount = nonAccount;
+  bool _engModeAvailable = false;
   bool _engModeEnabled = false;
 
   // This public getter cannot be modified by any other object
@@ -23,6 +24,7 @@ class WalletProvider extends ChangeNotifier {
   Account get noWalletAccount => nonAccount;
   Account get selectedAccount => _selectedAccount;
   bool get engModeEnabled => _engModeEnabled;
+  bool get engModeAvailable => _engModeAvailable;
 
   // Don't change case here, early versions allowed uppercase addresses
   Future<String> getMnemonic(String addr) async {
@@ -44,6 +46,7 @@ class WalletProvider extends ChangeNotifier {
       // Fetch data
     }
     _engModeEnabled = Settings.getValue<bool>(AppSettings.keyEngModeEnabled) ?? false;
+    _engModeAvailable = await services.getEngModeAvail();
     return _accountsListCache.length;
   }
 
@@ -124,8 +127,13 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setEngMode(bool value) {
+  void setEngModeEnabled(bool value) {
     _engModeEnabled = value;
     notifyListeners();
+  }
+
+  void setEngModeAvailable(bool value) {
+    _engModeAvailable = value;
+    services.setEngModeAvail(value);
   }
 }

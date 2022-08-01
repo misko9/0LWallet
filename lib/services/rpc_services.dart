@@ -12,7 +12,25 @@ import '../models/account.dart';
 class RpcServices {
   static const SCALING_FACTOR = 1000000; // 1_000_000
 
-  static Future fetchAccountState(WalletProvider walletProvider, Account account, bool rateLimit) async {
+  // If community, check dest account is slow
+  static Future<bool> isSendCommunityAndRecipientSlow(Account account, String destAddr) async {
+    if (account.walletType == "Community") {
+      RpcGetAccountState accountState = await LibraRpc.getAccountStateRpc(
+          destAddr);
+      if ((accountState.result?.blob != null) &&
+          ((accountState.result?.blob ?? "").isNotEmpty)) {
+        String walletType = Libra().get_wallet_type_from_state(
+            accountState.result?.blob ?? "");
+        debugPrint("Wallet type for community send $walletType");
+        if (walletType != "Slow") {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  static Future fetchAccountState(WalletProvider walletProvider, Account account) async {
     RpcGetAccountState accountState = await LibraRpc.getAccountStateRpc(account.addr);
     debugPrint("AccountState: ${accountState.result?.blob}");
     if((accountState.result?.blob != null) && ((accountState.result?.blob ?? "").isNotEmpty)) {
@@ -30,6 +48,10 @@ class RpcServices {
               accountState.result?.blob ?? "");
           if(credits > 0) {
             account.makeWhole = credits.toDouble() / SCALING_FACTOR;
+          }
+          if (!(account.makeWholeClaimed)) {
+            account.makeWholeClaimed = Libra().is_make_whole_claimed_from_state(
+                accountState.result?.blob ?? "");
           }
           bool isOperator = Libra().is_operator_from_state(accountState.result?.blob ?? "");
           if(isOperator) {
@@ -65,6 +87,10 @@ class RpcServices {
                 accountState.result?.blob ?? "");
             if(credits > 0) {
               account.makeWhole = credits.toDouble() / SCALING_FACTOR;
+            }
+            if (!(account.makeWholeClaimed)) {
+              account.makeWholeClaimed = Libra().is_make_whole_claimed_from_state(
+                  accountState.result?.blob ?? "");
             }
           }
           break;
@@ -104,11 +130,6 @@ class RpcServices {
               debugPrint("Seq # >= current, balance >= 0");
               account.balance = balance.amount.toDouble() / SCALING_FACTOR;
               account.seqNum = getAccount.result!.sequenceNumber;
-              if(!rateLimit) {
-                debugPrint("!rateLimite");
-                fetchAccountState(walletProvider, account, rateLimit);
-              }
-              //account.walletType = getAccount.result!.role!.type;
             }
           }
         } else { // Failure with node

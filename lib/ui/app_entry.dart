@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:provider/provider.dart';
 import '../providers/wallet_provider.dart';
 import 'account_list.dart';
-import 'settings.dart';
 import 'wallet_home.dart';
 
 /// Splash

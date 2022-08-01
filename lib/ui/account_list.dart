@@ -101,6 +101,7 @@ Widget _buildAccountList(BuildContext context, TextEditingController nameControl
                     onTap: () {
                       wallet.setNewSelectedAccount(account.addr); // don't change addr case
                       RpcServices.fetchAccountInfo(wallet, account, false);
+                      RpcServices.fetchAccountState(wallet, account);
                       Navigator.pop(context);
                     },
                     trailing: PopupMenuButton<int>(
