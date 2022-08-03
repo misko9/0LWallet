@@ -45,8 +45,9 @@ init:
 all: ios android bindings
 
 ## ios: Compile the iOS universal library
-ios: target/universal/release/libexample.a
+##ios: target/universal/release/libexample.a
 ##ios: target/aarch64-apple-ios/release/libexample.a target/x86_64-apple-ios/release/libexample.a
+ios: bindings target/aarch64-apple-ios/release/libexample.a target/x86_64-apple-ios/release/libexample.a
 
 target/aarch64-apple-ios/release/libexample.a: $(SOURCES)
 	@if [ $$(uname) == "Darwin" ] ; then \
@@ -101,7 +102,7 @@ target/aarch64-linux-android/release/libexample.a: $(SOURCES) ndk-home
 target/armv7-linux-androideabi/release/libexample.a: $(SOURCES) ndk-home
 	CC_armv7_linux_androideabi=$(ANDROID_ARMV7_LINKER) \
 	CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=$(ANDROID_ARMV7_LINKER) \
-	RUSTFLAGS='-L ../android/src/main/jniLibs/aarmeabi-v7' \
+	RUSTFLAGS='-L ../android/src/main/jniLibs/armeabi-v7a' \
 		cargo build --target armv7-linux-androideabi --release
 	@echo "[DONE] $@"
 
