@@ -147,6 +147,7 @@ class _AccountStateWidgetState extends State<AccountStateWidget> {
   _watchOnlyDialog() {
     return showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Watch-only account"),
@@ -265,7 +266,9 @@ class _AccountStateWidgetState extends State<AccountStateWidget> {
         WalletProvider walletProvider =
             Provider.of<WalletProvider>(context, listen: false);
         RpcServices.fetchAccountInfo(walletProvider, account, false);
-        setState(() => _claimMakeWholeEnabled = true);
+        RpcServices.fetchAccountState(walletProvider, account).then((_) {
+          setState(() => _claimMakeWholeEnabled = true);
+        });
         Navigator.of(context).pop();
       },
     );
