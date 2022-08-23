@@ -14,6 +14,7 @@ dependencies:
   tweetnacl: 0.3.2
   async: ^2.8.2
   synchronized: ^3.0.0+2
+  universal_io: ^2.0.4
 
 dev_dependencies:
   flutter_test:

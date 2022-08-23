@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:Oollet/providers/wallet_provider.dart';
 import 'package:Oollet/services/rpc_services.dart';
 import 'package:Oollet/ui/barcode_scanner.dart';
@@ -460,9 +458,9 @@ class _SendTransactionState extends State<SendTransaction>
     String mnem = await walletProvider.getMnemonic(account.addr);
     String signedTx = "";
     if(account.walletType == "Community") {
-      signedTx = Libra().community_balance_transfer(destAddr, coins, mnem, seqNum);
+      signedTx = Libra.community_balance_transfer(destAddr, coins, mnem, seqNum);
     } else {
-      signedTx = Libra().balance_transfer(destAddr, coins, mnem, seqNum);
+      signedTx = Libra.balance_transfer(destAddr, coins, mnem, seqNum);
     }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       duration: const Duration(seconds: 18),

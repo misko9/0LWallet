@@ -1,5 +1,4 @@
 import 'package:Oollet/providers/wallet_provider.dart';
-import 'package:Oollet/utils/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:libra/libra.dart';
@@ -122,10 +121,10 @@ class _ImportWalletState extends State<ImportWallet> {
           //if(!FreshLibra.validateMnemonic(text.trim())) {
           //  return "FreshLibra caught invalid checksum";
           //}
-          if(!Libra().is_mnem_valid(text)) {
+          if(!Libra.is_mnem_valid(text)) {
             return 'Checksum is invalid';
           }
-          var addr = Libra().get_address_from_mnem(text);
+          var addr = Libra.get_address_from_mnem(text);
           var accounts = Provider.of<WalletProvider>(context, listen: false).accountsList;
           if(accounts.any((element) => element.addr.toLowerCase() == addr.toLowerCase())) {
             return 'Account already in wallet';
@@ -240,7 +239,7 @@ class _ImportWalletState extends State<ImportWallet> {
     if(valid != null && valid == true) { // Validation passes
       var name = nameController1.value.text;
       var mnem = _mnemController2.value.text;
-      var addr = Libra().get_address_from_mnem(mnem).toLowerCase();
+      var addr = Libra.get_address_from_mnem(mnem).toLowerCase();
       Provider.of<WalletProvider>(context, listen: false).addNewAccountByMnem(name, mnem);
       Provider.of<WalletProvider>(context, listen: false).setNewSelectedAccount(addr);
       Navigator.pushReplacementNamed(context, WalletHome.route);

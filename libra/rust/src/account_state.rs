@@ -133,8 +133,9 @@ pub extern "C" fn rust_get_wallet_type_from_state(blob: *const c_char) ->  *mut 
             Some(AnnotatedMoveValue::U64(_)) => return CString::new("Slow").unwrap().into_raw(),
             _ => ()
         }
+        return CString::new("Normal").unwrap().into_raw();
     }
-    CString::new("Normal").unwrap().into_raw()
+    CString::new("Error").unwrap().into_raw()
 }
 
 #[no_mangle]
@@ -206,7 +207,7 @@ pub extern "C" fn rust_get_transferred_from_state(blob: *const c_char) -> u64 {
             _ => ()
         }
     }
-    123
+    0
 }
 
 pub fn get_account_state(blob: *const c_char) -> Result<AccountState, &'static str> {

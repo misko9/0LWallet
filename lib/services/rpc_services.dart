@@ -19,7 +19,7 @@ class RpcServices {
           destAddr);
       if ((accountState.result?.blob != null) &&
           ((accountState.result?.blob ?? "").isNotEmpty)) {
-        String walletType = Libra().get_wallet_type_from_state(
+        String walletType = Libra.get_wallet_type_from_state(
             accountState.result?.blob ?? "");
         debugPrint("Wallet type for community send $walletType");
         if (walletType != "Slow") {
@@ -34,72 +34,82 @@ class RpcServices {
     RpcGetAccountState accountState = await LibraRpc.getAccountStateRpc(account.addr);
     debugPrint("AccountState: ${accountState.result?.blob}");
     if((accountState.result?.blob != null) && ((accountState.result?.blob ?? "").isNotEmpty)) {
-      String walletType = Libra().get_wallet_type_from_state(accountState.result?.blob ?? "");
-      if(account.walletType == "normal") {
-        account.walletType = walletType;
-      } else if (account.walletType == "Normal") {
-        account.walletType = walletType;
-      } else if ((walletType == "Slow") || (walletType == "Community")) {
-        account.walletType = walletType;
-      }
-      switch (walletType) {
-        case "Normal":
-          int credits = Libra().get_make_whole_credits_from_state(
-              accountState.result?.blob ?? "");
-          if(credits > 0) {
-            account.makeWhole = credits.toDouble() / SCALING_FACTOR;
-          }
-          if (!(account.makeWholeClaimed)) {
-            account.makeWholeClaimed = Libra().is_make_whole_claimed_from_state(
+      String walletType = Libra.get_wallet_type_from_state(
+          accountState.result?.blob ?? "");
+      debugPrint("Wallet Type: $walletType");
+      if (walletType != "Error") {
+        if (account.walletType == "normal") {
+          account.walletType = walletType;
+        } else if (account.walletType == "Normal") {
+          account.walletType = walletType;
+        } else if ((walletType == "Slow") || (walletType == "Community")) {
+          account.walletType = walletType;
+        }
+        switch (walletType) {
+          case "Normal":
+            int credits = Libra.get_make_whole_credits_from_state(
                 accountState.result?.blob ?? "");
-          }
-          bool isOperator = Libra().is_operator_from_state(accountState.result?.blob ?? "");
-          if(isOperator) {
-            account.isOperator = isOperator;
-          }
-          break;
-        case "Slow":
-          int unlocked = Libra().get_unlocked_from_state(
-              accountState.result?.blob ?? "");
-          if(unlocked > 0) {
-            account.unlocked = unlocked.toDouble() / SCALING_FACTOR;
-          }
-          int transferred = Libra().get_transferred_from_state(
-              accountState.result?.blob ?? "");
-          if(transferred > 0) {
-            account.transferred = transferred.toDouble() / SCALING_FACTOR;
-          }
-          bool isValidator = Libra().is_validator_from_state(accountState.result?.blob ?? "");
-          if (isValidator) {
-            account.isValidator = isValidator;
-            String vouchers = Libra().get_vouchers_from_state(accountState.result?.blob ?? "");
-            if(vouchers.isNotEmpty) {
-              account.vouchers = vouchers;
-            }
-            String ancestry = Libra().get_ancestry_from_state(accountState.result?.blob ?? "");
-            debugPrint("ancestry = $ancestry");
-            if(ancestry.isNotEmpty) {
-              account.ancestry = ancestry;
-            }
-            //debugPrint("Ancestry: $ancestry");
-          } else {
-            int credits = Libra().get_make_whole_credits_from_state(
-                accountState.result?.blob ?? "");
-            if(credits > 0) {
+            if (credits > 0) {
               account.makeWhole = credits.toDouble() / SCALING_FACTOR;
             }
             if (!(account.makeWholeClaimed)) {
-              account.makeWholeClaimed = Libra().is_make_whole_claimed_from_state(
+              account.makeWholeClaimed = Libra.is_make_whole_claimed_from_state(
                   accountState.result?.blob ?? "");
             }
-          }
-          break;
-        case "Community":
-          break;
-        default:
-          break;
+            bool isOperator = Libra.is_operator_from_state(
+                accountState.result?.blob ?? "");
+            if (isOperator) {
+              account.isOperator = isOperator;
+            }
+            break;
+          case "Slow":
+            int unlocked = Libra.get_unlocked_from_state(
+                accountState.result?.blob ?? "");
+            if (unlocked > 0) { // this shouldn't ever be 0 due to gas needs
+              account.unlocked = unlocked.toDouble() / SCALING_FACTOR;
+            }
+            int transferred = Libra.get_transferred_from_state(
+                accountState.result?.blob ?? "");
+            if (transferred > 0) {
+              account.transferred = transferred.toDouble() / SCALING_FACTOR;
+            }
+            bool isValidator = Libra.is_validator_from_state(
+                accountState.result?.blob ?? "");
+            if (isValidator) {
+              account.isValidator = isValidator;
+              String vouchers = Libra.get_vouchers_from_state(
+                  accountState.result?.blob ?? "");
+              if (vouchers.isNotEmpty) {
+                account.vouchers = vouchers;
+              }
+              String ancestry = Libra.get_ancestry_from_state(
+                  accountState.result?.blob ?? "");
+              debugPrint("ancestry = $ancestry");
+              if (ancestry.isNotEmpty) {
+                account.ancestry = ancestry;
+              }
+              account.makeWholeClaimed = true;
+              //debugPrint("Ancestry: $ancestry");
+            } else {
+              int credits = Libra.get_make_whole_credits_from_state(
+                  accountState.result?.blob ?? "");
+              if (credits > 0) {
+                account.makeWhole = credits.toDouble() / SCALING_FACTOR;
+              }
+              if (!(account.makeWholeClaimed)) {
+                account.makeWholeClaimed =
+                    Libra.is_make_whole_claimed_from_state(
+                        accountState.result?.blob ?? "");
+              }
+            }
+            break;
+          case "Community":
+            break;
+          default:
+            break;
+        }
+        walletProvider.saveAccount(account);
       }
-      walletProvider.saveAccount(account);
     }
   }
 

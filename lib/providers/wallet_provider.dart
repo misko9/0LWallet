@@ -65,7 +65,7 @@ class WalletProvider extends ChangeNotifier {
   }
 
   ReturnStatus addNewAccountByMnem(String name, String mnemonic) {
-    String addr = Libra().get_address_from_mnem(mnemonic).toLowerCase();
+    String addr = Libra.get_address_from_mnem(mnemonic).toLowerCase();
     if (_accountsListCache.any((element) => element.addr == addr)) {
       return ReturnStatus.duplicate;
     }

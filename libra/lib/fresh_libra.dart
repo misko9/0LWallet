@@ -11,6 +11,9 @@ class FreshLibra {
   static String getAddrFromMnemonic(String mnemonic) {
     var seedStr = bip39.mnemonicToSeedHex(mnemonic);
     // Can I just use, bip39.mnemonicToSeed? (returns Uint8 List)
+
+    // 1. Get mnemonic into an array of words, checking the checksum
+    // 2.
     List<int> seed = TweetNaclFast.hexDecode(seedStr);
     KeyPair kp = Signature.keyPair_fromSeed(Uint8List.fromList(seed));
     return kp.publicKey.toString();

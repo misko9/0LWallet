@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:async/async.dart';
 import 'package:synchronized/synchronized.dart';
-import 'dart:io';
+//import 'dart:io';
+import 'package:universal_io/io.dart';
 import 'dart:math';
 import 'dart:convert';
 import 'models/rpc_get_waypoint_view.dart';

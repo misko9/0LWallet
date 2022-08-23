@@ -217,7 +217,7 @@ class _AccountStateWidgetState extends State<AccountStateWidget> {
     await RpcServices.fetchAccountInfo(walletProvider, account, false);
     int seqNum = account.seqNum;
     String mnem = await walletProvider.getMnemonic(account.addr);
-    var signedTx = Libra().claim_make_whole(mnem, seqNum);
+    var signedTx = Libra.claim_make_whole(mnem, seqNum);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       duration: const Duration(seconds: 18),
       content: Row(
