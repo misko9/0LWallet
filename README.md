@@ -4,7 +4,7 @@ Flutter-based 0L Wallet app for android/ios
 - [Android App](https://play.google.com/store/apps/details?id=io.misko.olwallet)
 
 Latest Oollet Android APK (March 2, 2024):
-[Oollet-3.1.38.apk](https://github.com/misko9/0LWallet/oollet-3.1.38.apk)
+[Oollet-3.1.38.apk](https://github.com/misko9/0LWallet/blob/main/oollet-3.1.38.apk)
 
 (deprecated with 0L network v6.9 upgrade) Flutter-based tower app for Android (For best experience: plug in the device, from "Developer Options" set "Stay Awake", and keep the app in the foreground. Not recommended on your primary mobile device.)
 - [Proof Ripper apk](https://github.com/misko9/0LWallet/raw/proof_ripper/releases/proof_ripper_v1.2.16.apk)
