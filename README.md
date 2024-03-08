@@ -1,7 +1,8 @@
 # ![alt text](icons/icon-256.png) Oollet - A 0L wallet 
-Flutter-based 0L Wallet app for android/ios
+Flutter-based 0L Wallet app for android/ios/chrome
 - [iOS App](https://apps.apple.com/us/app/oollet-0l-network/id1617356005)
 - [Android App](https://play.google.com/store/apps/details?id=io.misko.olwallet)
+- [Chrome extension](https://chromewebstore.google.com/detail/oollet/dpniamglnahemfpinccfocfjoendhanl)
 
 Latest Oollet Android APK (March 2, 2024):
 [Oollet-3.1.38.apk](https://github.com/misko9/0LWallet/raw/main/oollet-3.1.38.apk)
@@ -9,7 +10,7 @@ Latest Oollet Android APK (March 2, 2024):
 (deprecated with 0L network v6.9 upgrade) Flutter-based tower app for Android (For best experience: plug in the device, from "Developer Options" set "Stay Awake", and keep the app in the foreground. Not recommended on your primary mobile device.)
 - [Proof Ripper apk](https://github.com/misko9/0LWallet/raw/proof_ripper/releases/proof_ripper_v1.2.16.apk)
 
-A mobile-first, chrome/web extension second, 0L wallet app.
+A mobile-first, 0L wallet app.
 
 It is a single codebase for all platforms with an FFI interface to the Libra rust library used by carpe/tower. Mnemonic is stored in secure storage protected by the respective platform's Keychain/Keystore services. Incognito keyboard is also used when inputing sensitive data. The UI is pretty basic right now, but after adding your account, you'll be able to see your balance, tower height, send, and receive. Codebase is common between android/ios/extension.
 
@@ -20,7 +21,6 @@ Some other items on roadmap:
 - Improve UI/UX/theme
 - Add a switch for the testnet
 - Add an address book for easy transfers
-- Get the wallet type
 - Additional languages
 - And more...
 
